@@ -13,6 +13,10 @@ class ComportamientoAuxiliar : public Comportamiento
 public:
   ComportamientoAuxiliar(unsigned int size = 0) : Comportamiento(size)
   {
+    //Inicializar variables de los niveles 1 y 4
+    last_action = IDLE;
+    tiene_zapatillas = false;
+    giro45Izq = 0;
 
   }
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
@@ -33,6 +37,9 @@ public:
   Action ComportamientoAuxiliarNivel_4(Sensores sensores);
 
 private:
+  Action last_action;
+  bool tiene_zapatillas;
+  int giro45Izq;
  
 };
 
