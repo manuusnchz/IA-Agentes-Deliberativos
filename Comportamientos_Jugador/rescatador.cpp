@@ -56,11 +56,79 @@ char ViablePorAlturaR(char casilla, int dif, bool zap){
 	}
 }
 
+void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char >> &a, Sensores sensores)
+{
+	m[sensores.posF][sensores.posC] = sensores.superficie[0];
+
+	int pos = 1;
+	switch (sensores.rumbo)
+	{
+	case norte:
+		m[sensores.posF-1][sensores.posC-1] = sensores.superficie[1];
+		m[sensores.posF-1][sensores.posC] = sensores.superficie[2];
+		m[sensores.posF-1][sensores.posC+1] = sensores.superficie[3];
+		
+		break;
+	
+	case noreste:
+		m[sensores.posF-1][sensores.posC] = sensores.superficie[1];
+		m[sensores.posF-1][sensores.posC+1] = sensores.superficie[2];
+		m[sensores.posF][sensores.posC+1] = sensores.superficie[3];
+		
+		break;
+	
+	case este:
+		m[sensores.posF-1][sensores.posC+1] = sensores.superficie[1];
+		m[sensores.posF][sensores.posC+1] = sensores.superficie[2];
+		m[sensores.posF+1][sensores.posC+1] = sensores.superficie[3];
+		
+		break;
+	
+	case sureste:
+		m[sensores.posF][sensores.posC+1]   = sensores.superficie[1];
+		m[sensores.posF+1][sensores.posC+1] = sensores.superficie[2];
+		m[sensores.posF+1][sensores.posC]   = sensores.superficie[3];
+		
+		break;
+	
+	case sur:
+		m[sensores.posF+1][sensores.posC+1] = sensores.superficie[1];
+		m[sensores.posF+1][sensores.posC]   = sensores.superficie[2];
+		m[sensores.posF+1][sensores.posC-1] = sensores.superficie[3];
+		
+		break;
+	
+	case suroeste:
+		m[sensores.posF+1][sensores.posC]   = sensores.superficie[1];
+		m[sensores.posF+1][sensores.posC-1] = sensores.superficie[2];
+		m[sensores.posF][sensores.posC-1]   = sensores.superficie[3];
+		
+		break;
+	
+	case oeste:
+		m[sensores.posF+1][sensores.posC-1] = sensores.superficie[1];
+		m[sensores.posF][sensores.posC-1]   = sensores.superficie[2];
+		m[sensores.posF-1][sensores.posC-1] = sensores.superficie[3];
+		
+		break;
+	
+	case noroeste:
+		m[sensores.posF][sensores.posC-1]   = sensores.superficie[1];
+		m[sensores.posF-1][sensores.posC-1] = sensores.superficie[2];
+		m[sensores.posF-1][sensores.posC]   = sensores.superficie[3];
+		
+		break;
+	
+	}
+}
+
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
 	Action accion;
 
 	if(sensores.superficie[0] == 'D') tiene_zapatillas = true;
+
+	SituarSensorEnMapaR(mapaResultado,mapaCotas,sensores);
 
 	if(sensores.superficie[0] == 'X'){
 		accion = IDLE;
