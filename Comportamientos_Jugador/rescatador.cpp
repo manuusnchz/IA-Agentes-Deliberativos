@@ -72,9 +72,16 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	}
 
 	else{
+		
 		char i = ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0],tiene_zapatillas);
 		char c = ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0],tiene_zapatillas);
 		char d = ViablePorAlturaR(sensores.superficie[3], sensores.cota[3]-sensores.cota[0],tiene_zapatillas);
+
+		//Detectamos si hay un auxiliar delante
+
+		if(sensores.agentes[2] == 'a'){
+			c = 'P';
+		}
 
 		int pos = VeoCasillaInteresanteR(i,c,d,tiene_zapatillas);
 		switch(pos)
