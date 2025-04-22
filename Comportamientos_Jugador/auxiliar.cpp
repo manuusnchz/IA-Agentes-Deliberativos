@@ -19,6 +19,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 		break;
 	case 3:
 		// accion = ComportamientoAuxiliarNivel_3 (sensores);
+		accion = ComportamientoAuxiliarNivel_E(sensores);
 		break;
 	case 4:
 		// accion = ComportamientoAuxiliarNivel_4 (sensores);
@@ -55,6 +56,16 @@ char ViablePorAlturaA(char casilla, int dif){
 	else{
 		return 'P';
 	}
+}
+
+list<Action> AvanzaASaltosDeCaballo(){
+	list<Action> secuencia;
+	secuencia.push_back(WALK);
+	secuencia.push_back(WALK);
+	secuencia.push_back(TURN_SR);
+	secuencia.push_back(TURN_SR);
+	secuencia.push_back(WALK);
+	return secuencia;
 }
 
 
@@ -115,4 +126,21 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
 {
+}
+
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
+	Action accion = IDLE;
+	if (!hayPlan){
+	// Invocar al método de búsqueda
+	plan = AvanzaASaltosDeCaballo();
+	hayPlan = true;
+	}
+	if (hayPlan and plan.size()>0){
+	accion = plan.front();
+	plan.pop_front();
+	}
+	if (plan.size()== 0){
+	hayPlan = false;
+	}
+	return accion;
 }

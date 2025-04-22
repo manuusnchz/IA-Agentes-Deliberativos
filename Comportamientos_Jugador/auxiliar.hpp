@@ -4,6 +4,7 @@
 #include <chrono>
 #include <time.h>
 #include <thread>
+#include <list>
 
 #include "comportamientos/comportamiento.hpp"
 
@@ -22,6 +23,7 @@ public:
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
     // Inicializar Variables de Estado Niveles 2,3
+    hayPlan = false;
   }
   ComportamientoAuxiliar(const ComportamientoAuxiliar &comport) : Comportamiento(comport) {}
   ~ComportamientoAuxiliar() {}
@@ -36,11 +38,17 @@ public:
   Action ComportamientoAuxiliarNivel_3(Sensores sensores);
   Action ComportamientoAuxiliarNivel_4(Sensores sensores);
 
+  Action ComportamientoAuxiliarNivel_E(Sensores sensores);
+
 private:
   Action last_action;
   bool tiene_zapatillas;
   int giro45Izq;
- 
+  
+
+  //Variables para nivel E
+  list<Action> plan;
+  bool hayPlan;
 };
 
 #endif
