@@ -8,6 +8,27 @@
 
 #include "comportamientos/comportamiento.hpp"
 
+struct EstadoA {
+  int f;
+  int c;
+  int brujula;
+  bool zapatillas;
+  
+  bool operator==(const EstadoA &st) const
+  {
+    return f == st.f && c == st.c && brujula == st.brujula and zapatillas ==
+    st.zapatillas;
+  }
+};
+
+struct NodoA{
+EstadoA estado;
+list<Action> secuencia;
+bool operator==(const NodoA &node) const{
+  return estado == node.estado;
+}
+};
+
 class ComportamientoAuxiliar : public Comportamiento
 {
 
@@ -39,6 +60,14 @@ public:
   Action ComportamientoAuxiliarNivel_4(Sensores sensores);
 
   Action ComportamientoAuxiliarNivel_E(Sensores sensores);
+
+
+  
+  list<Action> AnchuraAuxiliar(const EstadoA &inicio, const EstadoA &final,const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura );
+
+  void VisualizaPlan(const EstadoA &st, const list<Action> &plan);
+
+  EstadoA NextCasillaAuxiliar(const EstadoA &st);
 
 private:
   Action last_action;
