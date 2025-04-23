@@ -53,7 +53,8 @@ int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
 
 	if( c == 'C') return 2;
 	else if( d == 'C') return 3;
-	else return 1;
+	else if (i == 'C')return 1;
+	else return 0;
 
 }
 
@@ -291,12 +292,22 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 		accion = TURN_SR;
 		giro45Izq--;
 	}
+	/*
+	else if(sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r'){
+		accion = TURN_SR;
+		giro45Izq = 3;
+
+	}
+	*/
 
 	else{
 		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
 		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
 		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
 
+		if(sensores.agentes[2] == 'r'){
+			c = 'P';
+		}
 		
 
 		
@@ -314,7 +325,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 				accion = TURN_SR;
 				break;
 			case 0:
-			giro45Izq = 6;
+			giro45Izq = 5;
 			accion = TURN_SR;
 			break;
 		

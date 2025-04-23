@@ -39,6 +39,7 @@ private:
   Action last_action;
   bool tiene_zapatillas;
   int giro45Izq;
+  int case0 = 1;
 };
 
 #endif

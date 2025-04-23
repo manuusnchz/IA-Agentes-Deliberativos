@@ -42,7 +42,8 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 		else if(d == 'D') return 3;
 	}
 	if( c == 'C') return 2;
-	else if( d == 'C') return 3;
+	else if( i == 'C') return 1;
+	else if(d== 'C') return 3;
 	else return 0;
 
 }
@@ -167,6 +168,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 			case 0:
 				accion = TURN_L;
 				break;
+					
+						
+					
+				
 		}
 	}
 
