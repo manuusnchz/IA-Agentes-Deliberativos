@@ -40,6 +40,12 @@ public:
     tiene_zapatillas = false;
     giro45Izq = 0;
 
+    for(int i = 0 ; i < 500 ; i++){
+      for(int j = 0 ; j < 500 ; j++){
+        matrizAux[i][j]=1;
+      }
+    }
+
   }
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
@@ -73,6 +79,8 @@ private:
   Action last_action;
   bool tiene_zapatillas;
   int giro45Izq;
+
+  int matrizAux[500][500];
   
 
   //Variables para nivel E

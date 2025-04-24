@@ -36,11 +36,20 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 	if(c == 'X') return 2;
 	else if(i == 'X') return 1;
 	else if(d == 'X') return 3;
+	
 	else if (!zap){
 		if(c == 'D') return 2;
 		else if(i == 'D') return 1;
 		else if(d == 'D') return 3;
 	}
+
+	else if(zap){
+		if(c == 'D') return 2;
+		else if(i == 'D') return 1;
+		else if(d == 'D') return 3;
+	}
+
+
 	if( c == 'C') return 2;
 	else if( i == 'C') return 1;
 	else if(d== 'C') return 3;
@@ -125,11 +134,27 @@ void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigne
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
+	
+
 	Action accion;
 
 	if(sensores.superficie[0] == 'D') tiene_zapatillas = true;
 
 	SituarSensorEnMapaR(mapaResultado,mapaCotas,sensores);
+
+	if(last_action == WALK){
+		matriz[sensores.posF][sensores.posC]++;
+	}
+
+	if (matriz[sensores.posF][sensores.posC] >= 6) {
+		// Está en bucle: aplica una acción distinta
+		giro45Izq = rand() % 5;
+		accion = TURN_SR;  // TURN_SR aleatorio
+		matriz[sensores.posF][sensores.posC] = 1; // resetea el contador
+		return accion;
+	}
+
+
 
 	if(sensores.superficie[0] == 'X'){
 		accion = IDLE;
@@ -183,6 +208,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensores)
 {
+	
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
