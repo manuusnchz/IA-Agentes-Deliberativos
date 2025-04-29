@@ -15,7 +15,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 		accion = ComportamientoAuxiliarNivel_0 (sensores);
 		break;
 	case 1:
-		// accion = ComportamientoAuxiliarNivel_1 (sensores);
+		accion = ComportamientoAuxiliarNivel_1 (sensores);
 		break;
 	case 2:
 		// accion = ComportamientoAuxiliarNivel_2 (sensores);
@@ -60,6 +60,10 @@ int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
 	if( c == 'C') return 2;
 	else if( d == 'C') return 3;
 	else if (i == 'C')return 1;
+	
+	
+
+	
 	else return 0;
 
 }

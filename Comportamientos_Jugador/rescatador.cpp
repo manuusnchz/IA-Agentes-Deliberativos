@@ -11,7 +11,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_0 (sensores);
 		break;
 	case 1:
-		// accion = ComportamientoRescatadorNivel_1 (sensores);
+		accion = ComportamientoRescatadorNivel_1 (sensores);
 		break;
 	case 2:
 		// accion = ComportamientoRescatadorNivel_2 (sensores);
@@ -53,9 +53,69 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 	if( c == 'C') return 2;
 	else if( i == 'C') return 1;
 	else if(d== 'C') return 3;
-	else return 0;
 
+	else return 0;
 }
+
+int VeoCasillaInteresante_N1(char i, char c, char d, bool zap,char mi, char mc, char md){
+	 // 1. Si hay casilla de tipo X sin explorar, ir allí
+	 if (mc == '?' && c == 'X') return 2;
+	 else if (mi == '?' && i == 'X') return 1;
+	 else if (md == '?' && d == 'X') return 3;
+ 
+	 // 2. Si no tengo zapatillas, y hay D sin explorar
+	 if (!zap) {
+		 if (mc == '?' && c == 'D') return 2;
+		 else if (mi == '?' && i == 'D') return 1;
+		 else if (md == '?' && d == 'D') return 3;
+	 }
+ 
+	 // 3. Si tengo zapatillas, aún así preferimos no explorado
+	 if (zap) {
+		 if (mc == '?' && c == 'D') return 2;
+		 else if (mi == '?' && i == 'D') return 1;
+		 else if (md == '?' && d == 'D') return 3;
+	 }
+ 
+	 // 4. Preferimos caminos 'C' no explorados
+	 if (mc == '?' && c == 'C') return 2;
+	 else if (mi == '?' && i == 'C') return 1;
+	 else if (md == '?' && d == 'C') return 3;
+ 
+	 // 5. Senderos 'S' no explorados
+	 if (mc == '?' && c == 'S') return 2;
+	 else if (md == '?' && d == 'S') return 3;
+	 else if (mi == '?' && i == 'S') return 1;
+ 
+	 // 6. Si ya están exploradas, seguimos el orden preferente normal
+	 if (c == 'X') return 2;
+	 else if (i == 'X') return 1;
+	 else if (d == 'X') return 3;
+ 
+	 if (!zap) {
+		 if (c == 'D') return 2;
+		 else if (i == 'D') return 1;
+		 else if (d == 'D') return 3;
+	 }
+ 
+	 if (zap) {
+		 if (c == 'D') return 2;
+		 else if (i == 'D') return 1;
+		 else if (d == 'D') return 3;
+	 }
+ 
+	 if (c == 'C') return 2;
+	 else if (i == 'C') return 1;
+	 else if (d == 'C') return 3;
+ 
+	 if (c == 'S') return 2;
+	 else if (d == 'S') return 3;
+	 else if (i == 'S') return 1;
+ 
+	 // Nada interesante
+	 return 0;
+}
+
 
 char ViablePorAlturaR(char casilla, int dif, bool zap){
 	if(abs(dif)<=1 or (zap and abs(dif)<=2)){
@@ -208,11 +268,13 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensores)
 {
-	
+
 }
+
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
 {
+
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensores)
