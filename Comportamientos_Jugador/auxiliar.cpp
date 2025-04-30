@@ -121,47 +121,32 @@ int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
 
 }
 
-int VeoCasillaInteresanteA1(char i, char c, char d, bool zap){
-	
-	if(c == '?' && i != '?' && d != '?') {
-		cout << "A: TIRO PA ALANTE POR QUE ES LA UNICA NO EXPLORADA" << endl;
-		return 2;
-	}
-	else if(c != '?' && i == '?' && d != '?'){
-		cout << "A: TIRO PA IZQ POR QUE ES LA UNICA NO EXPLORADA" << endl;
-		return 1;
-	}
-	else if(c != '?' && i != '?' && d == '?'){
-		cout << "A: TIRO PA ALANTE POR QUE ES LA UNICA NO EXPLORADA" << endl;
-		return 3;
-	}
-	
-	if(c == 'X') return 2;
-	else if(i == 'X') return 1;
-	else if(d == 'X') return 3;
-	
-	
-	else if (!zap){
-		if(c == 'D') return 2;
-		else if(i == 'D') return 1;
-		else if(d == 'D') return 3;
-	}
+int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc,char mi, char md){
 
-	else if(zap){
-		if(c == 'D') return 2;
-		else if(i == 'D') return 1;
-		else if(d == 'D') return 3;
-	}
+	// Prioridad 1: Casillas no exploradas ('?')
+	if (mc == '?' && c != 'P' && c != 'M') return 2;
+	if (mi == '?' && i != 'P' && i != 'M') return 1;
+	if (md == '?' && d != 'P' && d != 'M') return 3;
 
-	if( c == 'C') return 2;
-	else if( d == 'C') return 3;
-	else if (i == 'C')return 1;
+	// Prioridad 2: Víctimas ('X')
+	if (c == 'X') return 2;
+	if (i == 'X') return 1;
+	if (d == 'X') return 3;
 	
-	if( c == 'S') return 2;
-	else if( d == 'S') return 3;
-	else if (i == 'S')return 1;
-
-	else return 0;
+	// Prioridad 3: Zapatillas ('D') si no las tenemos
+	if (!zap) {
+		if (c == 'D') return 2;
+		if (i == 'D') return 1;
+		if (d == 'D') return 3;
+	}
+	
+	// Prioridad 4: Caminos ('C') y senderos ('S')
+	if (c == 'C' || c == 'S') return 2;
+	if (i == 'C' || i == 'S') return 1;
+	if (d == 'C' || d == 'S') return 3;
+	
+	// Si no hay nada interesante
+	return 0;
 
 }
 
@@ -491,10 +476,11 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 		if(sensores.agentes[2] == 'r'){
 			c = 'P';
 		}
+		char mi = mapaResultado[sensores.posF][sensores.posC-1]; // izquierda
+		char mc = mapaResultado[sensores.posF-1][sensores.posC]; // centro
+		char md = mapaResultado[sensores.posF][sensores.posC+1]; // derecha
 		
-
-		
-		int pos = VeoCasillaInteresanteA1(i,c,d,tiene_zapatillas);
+		int pos = VeoCasillaInteresanteA1(i, c, d, tiene_zapatillas, mi, mc, md);
 		switch(pos)
 		{
 			case 2:
