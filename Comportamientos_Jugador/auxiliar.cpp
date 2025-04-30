@@ -141,9 +141,9 @@ int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc,char mi, c
 	}
 	
 	// Prioridad 4: Caminos ('C') y senderos ('S')
-	if (c == 'C' || c == 'S') return 2;
-	if (i == 'C' || i == 'S') return 1;
-	if (d == 'C' || d == 'S') return 3;
+	if (c == 'C' || c == 'S' || (zap && c == 'B')) return 2;
+    if (i == 'C' || i == 'S' || (zap && i == 'B')) return 1;
+    if (d == 'C' || d == 'S' || (zap && d == 'B')) return 3;
 	
 	// Si no hay nada interesante
 	return 0;
@@ -454,7 +454,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 		matrizAux[sensores.posF][sensores.posC]++;
 	}
 
-	if (matrizAux[sensores.posF][sensores.posC] >= 6) {
+	if (matrizAux[sensores.posF][sensores.posC] >= 4) {
 		// Está en bucle: aplica una acción distinta
 		giro45Izq = rand() % 5;
 		accion = TURN_SR;  // TURN_SR aleatorio

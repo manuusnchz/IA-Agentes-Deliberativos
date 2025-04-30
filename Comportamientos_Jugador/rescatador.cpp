@@ -60,29 +60,35 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 	else return 0;
 }
 
+
 int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, char mi, char mc, char md){
 	 
 	// Prioridad 1: Casillas no exploradas ('?')
 	 if (mc == '?' && c != 'P' && c != 'M') return 2;
-	 if (mi == '?' && i != 'P' && i != 'M') return 1;
-	 if (md == '?' && d != 'P' && d != 'M') return 3;
+	 else if (mi == '?' && i != 'P' && i != 'M') return 1;
+	 else if (md == '?' && d != 'P' && d != 'M') return 3;
  
 	 // Prioridad 2: Víctimas ('X')
 	 if (c == 'X') return 2;
-	 if (i == 'X') return 1;
-	 if (d == 'X') return 3;
+	 else if (i == 'X') return 1;
+	 else if (d == 'X') return 3;
 	 
 	 // Prioridad 3: Zapatillas ('D') si no las tenemos
 	 if (!zap) {
 		 if (c == 'D') return 2;
-		 if (i == 'D') return 1;
-		 if (d == 'D') return 3;
+		 else if (i == 'D') return 1;
+		 else if (d == 'D') return 3;
 	 }
 	 
 	 // Prioridad 4: Caminos ('C') y senderos ('S')
-	 if (c == 'C' || c == 'S') return 2;
-	 if (i == 'C' || i == 'S') return 1;
-	 if (d == 'C' || d == 'S') return 3;
+	 if (c == 'C' ) return 2;
+	 else if (i == 'C' ) return 1;
+	 else if (d == 'C') return 3;
+	 
+	 if (c == 'S' ) return 2;
+	 else if (i == 'S' ) return 1;
+	 else if (d == 'S') return 3;
+
 	 
 	 // Si no hay nada interesante
 	 return 0;
@@ -179,7 +185,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		matriz[sensores.posF][sensores.posC]++;
 	}
 
-	if (matriz[sensores.posF][sensores.posC] >= 6) {
+	if (matriz[sensores.posF][sensores.posC] >= 4) {
 		// Está en bucle: aplica una acción distinta
 		giro45Izq = rand() % 5;
 		accion = TURN_SR;  // TURN_SR aleatorio
