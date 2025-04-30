@@ -37,6 +37,64 @@ int ComportamientoAuxiliar::interact(Action accion, int valor)
 	return 0;
 }
 
+void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores) 
+{
+    // Actualiza la casilla actual
+    m[sensores.posF][sensores.posC] = sensores.superficie[0];
+
+    // Actualiza las casillas adyacentes según la orientación
+    switch (sensores.rumbo)
+    {
+    case norte:
+        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[1];  // Izquierda
+        m[sensores.posF-1][sensores.posC] = sensores.superficie[2];    // Centro
+        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[3];  // Derecha
+        break;
+    
+    case noreste:
+        m[sensores.posF-1][sensores.posC] = sensores.superficie[1];    // Frente izquierda
+        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[2];  // Frente
+        m[sensores.posF][sensores.posC+1] = sensores.superficie[3];    // Frente derecha
+        break;
+    
+    case este:
+        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[1];  // Izquierda
+        m[sensores.posF][sensores.posC+1] = sensores.superficie[2];    // Centro
+        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[3];  // Derecha
+        break;
+    
+    case sureste:
+        m[sensores.posF][sensores.posC+1] = sensores.superficie[1];    // Frente izquierda
+        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[2];  // Frente
+        m[sensores.posF+1][sensores.posC] = sensores.superficie[3];    // Frente derecha
+        break;
+    
+    case sur:
+        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[1];  // Izquierda
+        m[sensores.posF+1][sensores.posC] = sensores.superficie[2];    // Centro
+        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[3];  // Derecha
+        break;
+    
+    case suroeste:
+        m[sensores.posF+1][sensores.posC] = sensores.superficie[1];    // Frente izquierda
+        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[2];  // Frente
+        m[sensores.posF][sensores.posC-1] = sensores.superficie[3];    // Frente derecha
+        break;
+    
+    case oeste:
+        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[1];  // Izquierda
+        m[sensores.posF][sensores.posC-1] = sensores.superficie[2];    // Centro
+        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[3];  // Derecha
+        break;
+    
+    case noroeste:
+        m[sensores.posF][sensores.posC-1] = sensores.superficie[1];    // Frente izquierda
+        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[2];  // Frente
+        m[sensores.posF-1][sensores.posC] = sensores.superficie[3];    // Frente derecha
+        break;
+    }
+}
+
 int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
 	if(c == 'X') return 2;
 	else if(i == 'X') return 1;
@@ -55,15 +113,54 @@ int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
 		else if(d == 'D') return 3;
 	}
 
+	if( c == 'C') return 2;
+	else if( d == 'C') return 3;
+	else if (i == 'C')return 1;
+	
+	else return 0;
 
+}
+
+int VeoCasillaInteresanteA1(char i, char c, char d, bool zap){
+	
+	if(c == '?' && i != '?' && d != '?') {
+		cout << "A: TIRO PA ALANTE POR QUE ES LA UNICA NO EXPLORADA" << endl;
+		return 2;
+	}
+	else if(c != '?' && i == '?' && d != '?'){
+		cout << "A: TIRO PA IZQ POR QUE ES LA UNICA NO EXPLORADA" << endl;
+		return 1;
+	}
+	else if(c != '?' && i != '?' && d == '?'){
+		cout << "A: TIRO PA ALANTE POR QUE ES LA UNICA NO EXPLORADA" << endl;
+		return 3;
+	}
+	
+	if(c == 'X') return 2;
+	else if(i == 'X') return 1;
+	else if(d == 'X') return 3;
+	
+	
+	else if (!zap){
+		if(c == 'D') return 2;
+		else if(i == 'D') return 1;
+		else if(d == 'D') return 3;
+	}
+
+	else if(zap){
+		if(c == 'D') return 2;
+		else if(i == 'D') return 1;
+		else if(d == 'D') return 3;
+	}
 
 	if( c == 'C') return 2;
 	else if( d == 'C') return 3;
 	else if (i == 'C')return 1;
 	
-	
+	if( c == 'S') return 2;
+	else if( d == 'S') return 3;
+	else if (i == 'S')return 1;
 
-	
 	else return 0;
 
 }
@@ -355,6 +452,71 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 {
+	Action accion;
+
+	if(sensores.superficie[0] == 'D') tiene_zapatillas = true;
+
+	SituarSensorEnMapaA(mapaResultado,mapaCotas,sensores);
+	
+	if(sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r'){
+		giro45Izq = 3;
+		accion = TURN_SR;
+	}
+
+	
+
+	if(last_action == WALK){
+		matrizAux[sensores.posF][sensores.posC]++;
+	}
+
+	if (matrizAux[sensores.posF][sensores.posC] >= 6) {
+		// Está en bucle: aplica una acción distinta
+		giro45Izq = rand() % 5;
+		accion = TURN_SR;  // TURN_SR aleatorio
+		matrizAux[sensores.posF][sensores.posC] = 1; // resetea el contador
+		return accion;
+	}
+	
+
+	else if(giro45Izq != 0){
+		accion = TURN_SR;
+		giro45Izq--;
+	}
+	
+	else{
+		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
+		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
+		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
+
+		if(sensores.agentes[2] == 'r'){
+			c = 'P';
+		}
+		
+
+		
+		int pos = VeoCasillaInteresanteA1(i,c,d,tiene_zapatillas);
+		switch(pos)
+		{
+			case 2:
+				accion = WALK;
+				break;
+			case 1:
+				giro45Izq = 6;
+				accion = TURN_SR;
+				break;
+			case 3:
+				accion = TURN_SR;
+				break;
+			case 0:
+			giro45Izq = 5;
+			accion = TURN_SR;
+			break;
+		
+	}
+	}
+
+	last_action = accion;
+	return accion;
 	
 }
 

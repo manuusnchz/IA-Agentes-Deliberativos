@@ -74,6 +74,7 @@ public:
   void VisualizaPlan(const EstadoA &st, const list<Action> &plan);
 
   EstadoA NextCasillaAuxiliar(const EstadoA &st);
+  
 
 private:
   Action last_action;
