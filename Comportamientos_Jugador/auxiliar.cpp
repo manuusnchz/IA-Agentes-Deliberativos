@@ -508,6 +508,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
 {
+	return IDLE;
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)

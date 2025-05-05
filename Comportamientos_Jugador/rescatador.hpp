@@ -4,13 +4,66 @@
 #include <chrono>
 #include <time.h>
 #include <thread>
+#include <list>
+#include <climits>
 
 #include "comportamientos/comportamiento.hpp"
+
+struct EstadoR {
+  int f;
+  int c;
+  int brujula;
+  bool zapatillas;
+  int coste_acumulado;
+
+  bool operator==(const EstadoR& otro) const {
+    return f == otro.f && 
+           c == otro.c && 
+           brujula == otro.brujula && 
+           zapatillas == otro.zapatillas;
+}
+
+  bool operator<(const EstadoR &st) const {
+      if (f != st.f) return f < st.f;
+      if (c != st.c) return c < st.c;
+      if (brujula != st.brujula) return brujula < st.brujula;
+      return zapatillas < st.zapatillas;
+  }
+};
+
+struct NodoR {
+  EstadoR estado;
+  list<Action> secuencia;
+  int coste_total;
+
+  bool operator<(const NodoR &n) const {
+      return coste_total < n.coste_total;
+  }
+
+  bool operator>(const NodoR& otro) const {
+    return coste_total > otro.coste_total;
+}
+};
+
+int calcularCoste(Action accion, 
+  const EstadoR &origen,
+  const EstadoR &destino,
+  const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
 
 class ComportamientoRescatador : public Comportamiento
 {
 
 public:
+
+
+
+static bool CasillaTransitableRescatador(const EstadoR &st, 
+  const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
+
+static EstadoR NextCasillaRescatador(const EstadoR &st);
+
   ComportamientoRescatador(unsigned int size = 0) : Comportamiento(size)
   {
     // Inicializar Variables de Estado Niveles 0,1,4
@@ -26,10 +79,13 @@ public:
   }
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
-    // Inicializar Variables de Estado Niveles 2,3
+    hayPlan = false;
   }
   ComportamientoRescatador(const ComportamientoRescatador &comport) : Comportamiento(comport) {}
   ~ComportamientoRescatador() {}
+  void AnularMatrizR(vector<vector<unsigned char>> &m);
+  void VisualizaPlan(const EstadoR &st, const list<Action> &plan);
+
 
   Action think(Sensores sensores);
 
@@ -47,6 +103,10 @@ private:
   int giro45Izq;
 
   int matriz[500][500];
+
+  //Variables para nivel E
+  list<Action> plan;
+  bool hayPlan;
   
 };
 
