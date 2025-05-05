@@ -428,7 +428,7 @@ void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Actio
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
-	
+	//HOLA
 
 	Action accion;
 
