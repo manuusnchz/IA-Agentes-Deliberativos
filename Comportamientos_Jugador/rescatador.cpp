@@ -435,99 +435,9 @@ case RUN:
 	return next;
 	}
 /*
-	int ComportamientoRescatador::costeTerreno(
-		char terrenoDestino,
-		int cotaOrigen,
-		int cotaDestino,
-		Action accion)
-	{
-	  int coste = 0;
-	
-	  // Coste base por terreno
-	  switch (terrenoDestino) {
-		case 'T': // Tierra
-		  coste = (accion == WALK) ? 2 : 1;
-		  break;
-		
-		case 'A': // Agua
-		  coste = (accion == WALK) ? 6 : 100;  // Suponemos que RUN en agua no es recomendable
-		  break;
-		case 'X': // Muro / Inaccesible
-		  return 9999; // Muy alto para no ser elegido
-		default:
-		  coste = 5;  // Terreno desconocido: coste alto pero no infinito
-		  break;
-	  }
-	  
-
-
-	  // Coste base por terreno
-	  switch (terrenoDestino) {
-		case 'T': // Tierra
-		  coste = (accion == WALK) ? 20 : (accion == RUN) ? 35 : (accion == TURN_L) ? 5 : (accion == TURN_SR) ? 3 : 0  ;
-		  break;
-		
-		case 'A': // Agua
-		  coste = (accion == WALK) ? 100 : (accion == RUN) ? 150 : (accion == TURN_L) ? 30 : (accion == TURN_SR) ? 16 : 0 ; 
-		  break;
-		
-		case 'S': // Sendero
-			coste = (accion == WALK) ? 2 : (accion == RUN) ? 3 : (accion == TURN_L) ? 1 : (accion == TURN_SR) ? 1 : 0  ;
-		  break;
-	
-		
-	    case 'X': // Muro / Inaccesible
-		  return 9999; // Muy alto para no ser elegido
-		default:
-		  coste = (accion == WALK) ? 1 : 1;
-		  break;
-	  }
 	
 
-	  int delta = cotaDestino - cotaOrigen;
-  if (delta > 0) {
-    // Se trata de una subida. Aplicar penalización según acción y terreno de destino.
-
-    if (accion == WALK) {
-      switch (terrenoDestino) {
-        case 'A':
-          coste += 10; // Penalización WALK en Agua al subir
-          break;
-        case 'T':
-          coste += 5; // Penalización WALK en Tierra al subir
-          break;
-        case 'S':
-          coste += 1; // Penalización WALK en Superficie sin explorar al subir
-          break;
-        // Para el resto de terrenos (B, D, etc.), la penalización por subida al caminar es 0.
-        default:
-          coste += 0; // No es necesario añadir 0 explícitamente
-          break;
-      }
-    } else if (accion == RUN) {
-       switch (terrenoDestino) {
-        case 'A':
-          coste += 15; // Penalización RUN en Agua al subir
-          break;
-        case 'T':
-          coste += 5; // Penalización RUN en Tierra al subir
-          break;
-        case 'S':
-          coste += 2; // Penalización RUN en Superficie sin explorar al subir
-          break;
-         // Para el resto de terrenos (B, D, etc.), la penalización por subida al correr es 0.
-        default:
-          coste += 0; // No es necesario añadir 0 explícitamente
-          break;
-      }
-    }
-    // Si delta <= 0 (bajada o mismo nivel), no se añade esta penalización por subida.
-  }
 	
-	  return coste;
-	}
-
-	*/
 int ComportamientoRescatador::costeTerreno(
 	char terrenoDestino,
 	int cotaOrigen,
@@ -630,7 +540,115 @@ int ComportamientoRescatador::costeTerreno(
 
   
 }
+	*/
+int ComportamientoRescatador::costeTerreno(
+	char terrenoDestino,
+	int cotaOrigen,
+	int cotaDestino,
+	Action accion)
+{
+  int coste = 0;
+  int coste_t,coste_a;
 
+	switch (accion)
+	{
+	case WALK:
+		switch (terrenoDestino)
+		{
+		case 'A':
+			coste_t = 100; coste_a = 10;
+			break;
+		case 'T':
+			coste_t = 20; coste_a = 5;
+			break;
+		
+		case 'S':
+			coste_t = 2; coste_a = 1;
+			break;
+		
+		default:
+			coste_t = 1; coste_a = 0;
+			break;
+		}
+		break;
+	
+	case RUN:
+	switch (terrenoDestino)
+	{
+	case 'A':
+		coste_t = 150; coste_a = 15;
+		break;
+	case 'T':
+		coste_t = 35; coste_a = 5;
+		break;
+	
+	case 'S':
+		coste_t = 3; coste_a = 2;
+		break;
+	
+	default:
+		coste_t = 1; coste_a = 0;
+		break;
+	}
+		break;
+	
+	case TURN_L:
+	switch (terrenoDestino)
+	{
+	case 'A':
+		return 30; 
+		break;
+	case 'T':
+		return 5;
+		break;
+	
+	case 'S':
+		return 1;
+		break;
+	
+	default:
+		return 1; 
+		break;
+	}
+		break;
+
+	case TURN_SR:
+	switch (terrenoDestino)
+	{
+	case 'A':
+		return 16; 
+		break;
+	case 'T':
+		return 3;
+		break;
+	
+	case 'S':
+		return 1; 
+		break;
+	
+	default:
+		return 1;
+		break;
+	}
+		break;
+
+
+		default:
+		coste_t = 0; coste_a = 0;
+		break;
+	}
+
+	if(cotaDestino-cotaOrigen > 0){
+		coste_t += coste_a*(cotaDestino-cotaOrigen);
+	}
+	else if(cotaDestino-cotaOrigen < 0){
+		coste_t += coste_a*(-(cotaDestino-cotaOrigen));
+	}
+
+
+	
+	return coste_t;
+}
 
 
 	bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const EstadoR &destino, list<Action> &plan) {
