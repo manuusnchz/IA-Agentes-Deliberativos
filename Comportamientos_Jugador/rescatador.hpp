@@ -29,6 +29,10 @@ struct EstadoR {
       if (brujula != st.brujula) return brujula < st.brujula;
       return zapatillas < st.zapatillas;
   }
+
+  bool operator!=(const EstadoR &otro) const {
+    return !(*this == otro);
+  }
 };
 
 struct NodoR {
@@ -45,6 +49,12 @@ struct NodoR {
 }
 };
 
+struct CompararNodoR{
+  bool operator()(const NodoR &a, const NodoR & b) const{
+    return a.coste_total > b.coste_total;
+  }
+};
+
 int calcularCoste(Action accion, 
   const EstadoR &origen,
   const EstadoR &destino,
@@ -56,16 +66,24 @@ class ComportamientoRescatador : public Comportamiento
 
 public:
 
-list<Action> pathFindingDijkstra(EstadoR origen, EstadoR destino,
-  const vector<vector<unsigned char>> &terreno,
-  const vector<vector<unsigned char>> &altura);
+int costeTerreno(
+  char terrenoDestino,
+  int cotaOrigen,
+  int cotaDestino,
+  Action accion);
 
+bool AlgoritmoDkjistra(const EstadoR &origen, const EstadoR &destino, list<Action> &plan);
 static bool CasillaTransitableRescatador(const EstadoR &st, 
   const vector<vector<unsigned char>> &terreno,
   const vector<vector<unsigned char>> &altura);
 
 static EstadoR NextCasillaRescatador(const EstadoR &st);
 
+EstadoR applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
+	const vector<vector<unsigned char>> &altura);
+
+bool CasillaAccesibleRescatador(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
   ComportamientoRescatador(unsigned int size = 0) : Comportamiento(size)
   {
     // Inicializar Variables de Estado Niveles 0,1,4
@@ -119,6 +137,11 @@ private:
   //Variables para nivel E
   list<Action> plan;
   bool hayPlan;
+
+  EstadoR origen,destino;
+
+
+
   
 };
 

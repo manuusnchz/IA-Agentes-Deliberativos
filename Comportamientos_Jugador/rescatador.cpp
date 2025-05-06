@@ -18,7 +18,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_1 (sensores);
 		break;
 	case 2:
-		//accion = ComportamientoRescatadorNivel_2 (sensores);
+		accion = ComportamientoRescatadorNivel_2 (sensores);
 		break;
 	case 3:
 		// accion = ComportamientoRescatadorNivel_3 (sensores);
@@ -35,9 +35,42 @@ int ComportamientoRescatador::interact(Action accion, int valor)
 {
 	return 0;
 }
-/*
+
 
 ////////////////////////////////////////////////
+
+
+bool ComportamientoRescatador::CasillaTransitableRescatador(const EstadoR &st, 
+	const vector<vector<unsigned char>> &terreno,
+	const vector<vector<unsigned char>> &altura) {
+EstadoR next = NextCasillaRescatador(st);
+
+// Comprobar límites del mapa
+if (next.f < 0 || next.f >= terreno.size() || 
+next.c < 0 || next.c >= terreno[0].size()) {
+return false;
+}
+
+// Comprobar obstáculos
+if (terreno[next.f][next.c] == 'P' || terreno[next.f][next.c] == 'M') {
+return false;
+}
+
+// Comprobar bosque sin zapatillas
+if (terreno[next.f][next.c] == 'B' && !st.zapatillas) {
+return false;
+}
+
+// Comprobar diferencia de altura
+int dif_altura = abs(altura[next.f][next.c] - altura[st.f][st.c]);
+if (dif_altura > 1 && !st.zapatillas) {
+return false;
+}
+
+return true;
+}
+
+
 void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Action> &plan)
 {
 AnularMatrizR(mapaConPlan);
@@ -181,17 +214,6 @@ m[i][j] = 0;
 }
 }
 
-bool CasillaAccesibleAuxiliar(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
-	const vector<vector<unsigned char>> &altura){
-	EstadoR next = NextCasillaAuxiliar(st);
-	bool check1 = false, check2 = false, check3 = false;
-	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M';
-	check2 = terreno[next.f][next.c] != 'B' or (terreno[next.f][next.c] == 'B' and
-	st.zapatillas);
-	check3 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1;
-	return check1 and check2 and check3;
-	}
-
 EstadoR NextCasillaAuxiliar(const EstadoR &st){
 	EstadoR siguiente = st;
 	switch (st.brujula)
@@ -227,12 +249,25 @@ EstadoR NextCasillaAuxiliar(const EstadoR &st){
 	return siguiente;
 	}
 
-EstadoR applyA(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
+
+bool CasillaAccesibleAuxiliar(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
+	const vector<vector<unsigned char>> &altura){
+	EstadoR next = NextCasillaAuxiliar(st);
+	bool check1 = false, check2 = false, check3 = false;
+	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M';
+	check2 = terreno[next.f][next.c] != 'B' or (terreno[next.f][next.c] == 'B' and
+	st.zapatillas);
+	check3 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1;
+	return check1 and check2 and check3;
+	}
+
+
+EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
 	EstadoR next = st;
 	switch(accion){
 	case WALK:
-	if (CasillaAccesibleAuxiliar(st,terreno,altura)){
+	if (CasillaTransitableRescatador(st,terreno,altura)){
 	next = NextCasillaAuxiliar(st);
 	}
 	break;
@@ -243,81 +278,122 @@ EstadoR applyA(Action accion, const EstadoR & st, const vector<vector<unsigned c
 	return next;
 	}
 
-
-
-
-	#include <queue>
-	#include <set>
-	#include <limits>
+	int ComportamientoRescatador::costeTerreno(
+		char terrenoDestino,
+		int cotaOrigen,
+		int cotaDestino,
+		Action accion)
+	{
+	  int coste = 0;
 	
-	list<Action> pathFindingDijkstra(EstadoR origen, EstadoR destino,
-		const vector<vector<unsigned char>> &terreno,
-		const vector<vector<unsigned char>> &altura) {
-set<EstadoR> visitados;
-priority_queue<NodoR, vector<NodoR>, greater<NodoR>> abiertos;
+	  // Coste base por terreno
+	  switch (terrenoDestino) {
+		case 'T': // Tierra
+		  coste = (accion == WALK) ? 2 : 1;
+		  break;
+		
+		case 'A': // Agua
+		  coste = (accion == WALK) ? 6 : 100;  // Suponemos que RUN en agua no es recomendable
+		  break;
+		case 'X': // Muro / Inaccesible
+		  return 9999; // Muy alto para no ser elegido
+		default:
+		  coste = 5;  // Terreno desconocido: coste alto pero no infinito
+		  break;
+	  }
+	
+	  // Coste adicional por diferencia de cotas (subidas)
+	  int delta = cotaDestino - cotaOrigen;
+	  if (delta > 0) {
+		coste += delta;  // Penalización por subida
+	  }
+	
+	  return coste;
+	}
+	
 
-origen.coste_acumulado = 0;
-abiertos.push({origen, {}, 0});
 
-while (!abiertos.empty()) {
-NodoR actual = abiertos.top();
-abiertos.pop();
-
-if (visitados.count(actual.estado)) continue;
-visitados.insert(actual.estado);
-
-// Objetivo alcanzado
-if (actual.estado.f == destino.f && actual.estado.c == destino.c) {
-return actual.secuencia;
-}
-
-// Avanzar si es accesible
-if (CasillaAccesibleAuxiliar(actual.estado, terreno, altura)) {
-EstadoR sig = NextCasillaAuxiliar(actual.estado);
-sig.zapatillas = actual.estado.zapatillas;
-sig.coste_acumulado = actual.estado.coste_acumulado + 1;
-
-if (!visitados.count(sig)) {
-list<Action> nuevaSec = actual.secuencia;
-nuevaSec.push_back(WALK);
-abiertos.push({sig, nuevaSec, sig.coste_acumulado});
-}
-}
-
-// Girar derecha
-{
-EstadoR sig = actual.estado;
-sig.brujula = (sig.brujula + 1) % 8;
-sig.coste_acumulado = actual.estado.coste_acumulado + 1;
-
-if (!visitados.count(sig)) {
-list<Action> nuevaSec = actual.secuencia;
-nuevaSec.push_back(TURN_SR);
-abiertos.push({sig, nuevaSec, sig.coste_acumulado});
-}
-}
-
-// Girar izquierda
-{
-EstadoR sig = actual.estado;
-sig.brujula = (sig.brujula + 7) % 8;
-sig.coste_acumulado = actual.estado.coste_acumulado + 1;
-
-if (!visitados.count(sig)) {
-list<Action> nuevaSec = actual.secuencia;
-nuevaSec.push_back(TURN_L);
-abiertos.push({sig, nuevaSec, sig.coste_acumulado});
-}
-}
-}
-
-// Si no hay camino
-return {};
-}
-
+	bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const EstadoR &destino, list<Action> &plan) {
+		plan.clear();
+	  
+		priority_queue<NodoR, std::vector<NodoR>,CompararNodoR> frontera;
+		set<EstadoR> visitados;
+		NodoR currentNodo;
+	  
+		currentNodo.estado = origen;
+		currentNodo.coste_total = 0;
+		currentNodo.secuencia.clear();
+	  
+		bool solution = (origen.f == destino.f && origen.c == destino.c);
+		frontera.push(currentNodo);
+	  
+		while (!frontera.empty() && !solution) {
+		  currentNodo = frontera.top();
+		  frontera.pop();
+	  
+		  if (visitados.count(currentNodo.estado)) continue;
+		  visitados.insert(currentNodo.estado);
+	  
+		  if (currentNodo.estado.f == destino.f && currentNodo.estado.c == destino.c) {
+			plan = currentNodo.secuencia;
+			return true;
+		  }
+	  
+		  // ===== Generar sucesores =====
+	  
+		  // WALK
+		  NodoR walkNode = currentNodo;
+		  walkNode.estado = applyR(WALK, currentNodo.estado, mapaResultado, mapaCotas);
+		  if (walkNode.estado != currentNodo.estado && !visitados.count(walkNode.estado)) {
+			walkNode.coste_total += costeTerreno(
+			  mapaResultado[walkNode.estado.f][walkNode.estado.c],
+			  mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
+			  mapaCotas[walkNode.estado.f][walkNode.estado.c],
+			  WALK
+			);
+			walkNode.secuencia.push_back(WALK);
+			frontera.push(walkNode);
+		  }
+	  
+		  // RUN
+		  NodoR runNode = currentNodo;
+		  runNode.estado = applyR(RUN, currentNodo.estado, mapaResultado, mapaCotas);
+		  if (runNode.estado != currentNodo.estado && !visitados.count(runNode.estado)) {
+			runNode.coste_total += costeTerreno(
+			  mapaResultado[runNode.estado.f][runNode.estado.c],
+			  mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
+			  mapaCotas[runNode.estado.f][runNode.estado.c],
+			  RUN
+			);
+			runNode.secuencia.push_back(RUN);
+			frontera.push(runNode);
+		  }
+	  
+		  // TURN_SR
+		  NodoR srNode = currentNodo;
+		  srNode.estado = applyR(TURN_SR, currentNodo.estado, mapaResultado, mapaCotas);
+		  if (srNode.estado != currentNodo.estado && !visitados.count(srNode.estado)) {
+			srNode.coste_total += 1;
+			srNode.secuencia.push_back(TURN_SR);
+			frontera.push(srNode);
+		  }
+	  
+		  // TURN_L
+		  NodoR lNode = currentNodo;
+		  lNode.estado = applyR(TURN_L, currentNodo.estado, mapaResultado, mapaCotas);
+		  if (lNode.estado != currentNodo.estado && !visitados.count(lNode.estado)) {
+			lNode.coste_total += 1;
+			lNode.secuencia.push_back(TURN_L);
+			frontera.push(lNode);
+		  }
+		}
+	  
+		return false;
+	  }
+	
 	
 /////////////////////////////////////////////
-*/
+
 
 int VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 	
@@ -465,35 +541,7 @@ void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigne
 }
 
 
-bool ComportamientoRescatador::CasillaTransitableRescatador(const EstadoR &st, 
-	const vector<vector<unsigned char>> &terreno,
-	const vector<vector<unsigned char>> &altura) {
-EstadoR next = NextCasillaRescatador(st);
 
-// Comprobar límites del mapa
-if (next.f < 0 || next.f >= terreno.size() || 
-next.c < 0 || next.c >= terreno[0].size()) {
-return false;
-}
-
-// Comprobar obstáculos
-if (terreno[next.f][next.c] == 'P' || terreno[next.f][next.c] == 'M') {
-return false;
-}
-
-// Comprobar bosque sin zapatillas
-if (terreno[next.f][next.c] == 'B' && !st.zapatillas) {
-return false;
-}
-
-// Comprobar diferencia de altura
-int dif_altura = abs(altura[next.f][next.c] - altura[st.f][st.c]);
-if (dif_altura > 1 && !st.zapatillas) {
-return false;
-}
-
-return true;
-}
 
 EstadoR ComportamientoRescatador::NextCasillaRescatador(const EstadoR &st) {
 EstadoR siguiente = st;
@@ -532,7 +580,7 @@ break;
 return siguiente;
 }
 
-
+/*
 EstadoR applyR(Action accion, const EstadoR &st, 
 	const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura) {
@@ -593,6 +641,7 @@ coste = 0;
 return coste;
 }
 
+*/
 
 
 
@@ -816,21 +865,51 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
 {
-	/*
+	
 	Action accion = IDLE;
+	
+	if(sensores.superficie[0] == 'D'){
+		tiene_zapatillas = true;
+	}
+	
 	if (!hayPlan){
 		
+
+		//Se construye el estado inicial
+		origen.f = sensores.posF;
+		origen.c = sensores.posC;
+		origen.brujula = sensores.rumbo;
+		origen.zapatillas = tiene_zapatillas;
+
+		//Se construye el estado de destino
+		destino.f = sensores.destinoF;
+		destino.c = sensores.destinoC;
+		destino.brujula = 0;
+		destino.zapatillas = false; //No nos importa si tiene o no zapatillas en destino
+
+		//Se ejeecuta el algoritmo de Dijisktra
+		hayPlan = AlgoritmoDkjistra(origen,destino,plan);
 	}
-	if (hayPlan and plan.size()>0){
+	if (hayPlan ){
+		EstadoR estadoActual;
+	estadoActual.f = sensores.posF;
+	estadoActual.c = sensores.posC;
+	estadoActual.brujula = sensores.rumbo;
+	estadoActual.zapatillas = tiene_zapatillas; // Usamos la variable miembro que lleva el estado de las zapatillas del agente
+
+	VisualizaPlan(estadoActual, plan);
+	}
+	
+	if (hayPlan && !plan.empty()){
 		accion = plan.front();
 		plan.pop_front();
 	}
-	if (plan.size()== 0){
+	if(plan.empty()){
 		hayPlan = false;
 	}
 	return accion;
 		
-     */   
+       
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensores)
