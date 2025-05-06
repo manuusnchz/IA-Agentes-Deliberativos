@@ -79,6 +79,9 @@ static bool CasillaTransitableRescatador(const EstadoR &st,
 
 static EstadoR NextCasillaRescatador(const EstadoR &st);
 
+bool CasillaAccesibleAuxiliar(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
+	const vector<vector<unsigned char>> &altura);
+
 EstadoR applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura);
 
@@ -107,6 +110,7 @@ bool CasillaAccesibleRescatador(const EstadoR &st, const vector<vector<unsigned 
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
     hayPlan = false;
+    tiene_zapatillas = false;
   }
   ComportamientoRescatador(const ComportamientoRescatador &comport) : Comportamiento(comport) {}
   ~ComportamientoRescatador() {}
