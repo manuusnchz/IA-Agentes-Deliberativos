@@ -113,6 +113,7 @@ cst.c--;
 break;
 }
 mapaConPlan[cst.f][cst.c] = 3;
+break;
 case WALK:
 switch (cst.brujula)
 {
@@ -151,7 +152,7 @@ case TURN_SR:
 cst.brujula = (cst.brujula + 1) % 8;
 break;
 case TURN_L:
-cst.brujula = (cst.brujula + 6) % 8;
+cst.brujula = (cst.brujula + 7) % 8;
 break;
 }
 it++;
@@ -266,15 +267,30 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 	const vector<vector<unsigned char>> &altura){
 	EstadoR next = st;
 	switch(accion){
+	
+	
 	case WALK:
 	if (CasillaTransitableRescatador(st,terreno,altura)){
 	next = NextCasillaAuxiliar(st);
 	}
 	break;
+	
+	
+	
 	case TURN_SR:
 	next.brujula = (next.brujula+1)%8;
 	break;
+
+
+	
+
+	
+
+
 	}
+
+
+
 	return next;
 	}
 
@@ -285,7 +301,7 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 		Action accion)
 	{
 	  int coste = 0;
-	
+	/*
 	  // Coste base por terreno
 	  switch (terrenoDestino) {
 		case 'T': // Tierra
@@ -301,12 +317,79 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 		  coste = 5;  // Terreno desconocido: coste alto pero no infinito
 		  break;
 	  }
+	  */
+
+
+	  // Coste base por terreno
+	  switch (terrenoDestino) {
+		case 'T': // Tierra
+		  coste = (accion == WALK) ? 20 : (accion == RUN) ? 35 : (accion == TURN_L) ? 5 : (accion == TURN_SR) ? 3 : 0  ;
+		  break;
+		
+		case 'A': // Agua
+		  coste = (accion == WALK) ? 100 : (accion == RUN) ? 150 : (accion == TURN_L) ? 30 : (accion == TURN_SR) ? 16 : 0 ; 
+		  break;
+		
+		case 'S': // Sendero
+			coste = (accion == WALK) ? 2 : (accion == RUN) ? 3 : (accion == TURN_L) ? 1 : (accion == TURN_SR) ? 1 : 0  ;
+		  break;
+		
+	    case 'X': // Muro / Inaccesible
+		  return 9999; // Muy alto para no ser elegido
+		default:
+		  coste = (accion == WALK) ? 1 : 1;
+		  break;
+	  }
 	
+
+	  /*
 	  // Coste adicional por diferencia de cotas (subidas)
 	  int delta = cotaDestino - cotaOrigen;
 	  if (delta > 0) {
 		coste += delta;  // Penalización por subida
 	  }
+
+	  */
+
+	  int delta = cotaDestino - cotaOrigen;
+  if (delta > 0) {
+    // Se trata de una subida. Aplicar penalización según acción y terreno de destino.
+
+    if (accion == WALK) {
+      switch (terrenoDestino) {
+        case 'A':
+          coste += 10; // Penalización WALK en Agua al subir
+          break;
+        case 'T':
+          coste += 5; // Penalización WALK en Tierra al subir
+          break;
+        case 'S':
+          coste += 1; // Penalización WALK en Superficie sin explorar al subir
+          break;
+        // Para el resto de terrenos (B, D, etc.), la penalización por subida al caminar es 0.
+        default:
+          coste += 0; // No es necesario añadir 0 explícitamente
+          break;
+      }
+    } else if (accion == RUN) {
+       switch (terrenoDestino) {
+        case 'A':
+          coste += 15; // Penalización RUN en Agua al subir
+          break;
+        case 'T':
+          coste += 5; // Penalización RUN en Tierra al subir
+          break;
+        case 'S':
+          coste += 2; // Penalización RUN en Superficie sin explorar al subir
+          break;
+         // Para el resto de terrenos (B, D, etc.), la penalización por subida al correr es 0.
+        default:
+          coste += 0; // No es necesario añadir 0 explícitamente
+          break;
+      }
+    }
+    // Si delta <= 0 (bajada o mismo nivel), no se añade esta penalización por subida.
+  }
 	
 	  return coste;
 	}
