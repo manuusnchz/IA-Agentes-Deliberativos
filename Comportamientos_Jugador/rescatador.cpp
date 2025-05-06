@@ -152,7 +152,7 @@ case TURN_SR:
 cst.brujula = (cst.brujula + 1) % 8;
 break;
 case TURN_L:
-cst.brujula = (cst.brujula + 7) % 8;
+cst.brujula = (cst.brujula + 6) % 8;
 break;
 }
 it++;
@@ -281,10 +281,9 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 	next.brujula = (next.brujula+1)%8;
 	break;
 
-
-	
-
-	
+	case TURN_L:
+	next.brujula = (next.brujula+6)%8;
+	break;
 
 
 	}
