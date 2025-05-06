@@ -56,7 +56,9 @@ class ComportamientoRescatador : public Comportamiento
 
 public:
 
-
+list<Action> pathFindingDijkstra(EstadoR origen, EstadoR destino,
+  const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
 
 static bool CasillaTransitableRescatador(const EstadoR &st, 
   const vector<vector<unsigned char>> &terreno,
@@ -76,6 +78,13 @@ static EstadoR NextCasillaRescatador(const EstadoR &st);
         matriz[i][j]=1;
       }
     }
+
+    for(int i = 0 ; i < 500 ; i++){
+      for(int j = 0 ; j < 500 ; j++){
+        matrizTempR[i][j]=0;
+      }
+    }
+    instante = 0;
   }
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
@@ -85,6 +94,7 @@ static EstadoR NextCasillaRescatador(const EstadoR &st);
   ~ComportamientoRescatador() {}
   void AnularMatrizR(vector<vector<unsigned char>> &m);
   void VisualizaPlan(const EstadoR &st, const list<Action> &plan);
+  void PintaPlan(const list<Action> &plan, bool zap);
 
 
   Action think(Sensores sensores);
@@ -103,6 +113,8 @@ private:
   int giro45Izq;
 
   int matriz[500][500];
+  int matrizTempR[500][500];
+  int instante;
 
   //Variables para nivel E
   list<Action> plan;
