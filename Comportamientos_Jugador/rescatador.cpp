@@ -266,25 +266,47 @@ bool CasillaAccesibleAuxiliar(const EstadoR &st, const vector<vector<unsigned ch
 EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
 	EstadoR next = st;
-	switch(accion){
-	
-	
+	switch(accion)
+	{
 	case WALK:
-	if (CasillaTransitableRescatador(st,terreno,altura)){
-	next = NextCasillaAuxiliar(st);
+	{
+		if (CasillaTransitableRescatador(st,terreno,altura)){
+		next = NextCasillaAuxiliar(st);
+		}
+		break;
 	}
-	break;
-	
-	
-	
+	case RUN:
+	{
+		EstadoR estado_intermedio_pos = NextCasillaRescatador(st);
+		if (CasillaTransitableRescatador(st, terreno, altura)){
+			EstadoR estado_intermedio = estado_intermedio_pos;
+			estado_intermedio.brujula = st.brujula;
+			estado_intermedio.zapatillas = st.zapatillas;
+		
+		EstadoR estado_final_pos = NextCasillaRescatador(estado_intermedio);
+
+
+			if (CasillaTransitableRescatador(estado_intermedio, terreno, altura)){
+
+			// Si ambos pasos son transitables, el nuevo estado es la posición de la casilla final
+			// con la misma orientación y zapatillas que el estado original.
+			next = estado_final_pos;
+			next.brujula = st.brujula; // La brújula no cambia al correr.
+			next.zapatillas = st.zapatillas; // Las zapatillas no cambian al correr.
+			}
+		}
+		break;
+	}
 	case TURN_SR:
-	next.brujula = (next.brujula+1)%8;
-	break;
-
+	{
+		next.brujula = (next.brujula+1)%8;
+		break;
+	}
 	case TURN_L:
-	next.brujula = (next.brujula+6)%8;
-	break;
-
+	{
+		next.brujula = (next.brujula+6)%8;
+		break;
+	}
 
 	}
 
