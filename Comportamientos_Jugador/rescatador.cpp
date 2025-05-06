@@ -80,6 +80,55 @@ while (it != plan.end())
 {
 switch (*it)
 {
+	case RUN:
+	{
+		// Simular el primer paso de RUN
+		EstadoR estado_intermedio = cst;
+		switch (estado_intermedio.brujula) {
+			case 0: estado_intermedio.f--; break; // Norte
+			case 1: estado_intermedio.f--; estado_intermedio.c++; break; // Noreste
+			case 2: estado_intermedio.c++; break; // Este
+			case 3: estado_intermedio.f++; estado_intermedio.c++; break; // Sureste
+			case 4: estado_intermedio.f++; break; // Sur
+			case 5: estado_intermedio.f++; estado_intermedio.c--; break; // Suroeste
+			case 6: estado_intermedio.c--; break; // Oeste
+			case 7: estado_intermedio.f--; estado_intermedio.c--; break; // Noroeste
+		}
+
+		// Marcar la casilla intermedia si está dentro de los límites
+		if (estado_intermedio.f >= 0 && estado_intermedio.f < mapaConPlan.size() &&
+			estado_intermedio.c >= 0 && estado_intermedio.c < mapaConPlan[0].size()) {
+			mapaConPlan[estado_intermedio.f][estado_intermedio.c] = 3; // Marca el paso intermedio (puedes usar otro valor si quieres diferenciar)
+		}
+
+		// Simular el segundo paso de RUN desde el estado intermedio
+		EstadoR estado_final = estado_intermedio;
+		// La brújula no cambia durante RUN, por lo que usamos la del estado intermedio/original
+		switch (estado_final.brujula) {
+			case 0: estado_final.f--; break; // Norte
+			case 1: estado_final.f--; estado_final.c++; break; // Noreste
+			case 2: estado_final.c++; break; // Este
+			case 3: estado_final.f++; estado_final.c++; break; // Sureste
+			case 4: estado_final.f++; break; // Sur
+			case 5: estado_final.f++; estado_final.c--; break; // Suroeste
+			case 6: estado_final.c--; break; // Oeste
+			case 7: estado_final.f--; estado_final.c--; break; // Noroeste
+		}
+
+		 // Marcar la casilla final si está dentro de los límites
+		if (estado_final.f >= 0 && estado_final.f < mapaConPlan.size() &&
+			estado_final.c >= 0 && estado_final.c < mapaConPlan[0].size()) {
+			mapaConPlan[estado_final.f][estado_final.c] = 3; // Marca el paso final
+		}
+
+
+		// Actualizar el estado temporal de visualización a la posición final
+		cst = estado_final;
+		// La brújula y las zapatillas no cambian con RUN, se mantienen las del estado original cst.
+
+		break;
+	}
+/*
 case RUN:
 switch (cst.brujula)
 {
@@ -114,6 +163,8 @@ break;
 }
 mapaConPlan[cst.f][cst.c] = 3;
 break;
+
+*/
 case WALK:
 switch (cst.brujula)
 {
