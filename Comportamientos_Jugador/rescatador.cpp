@@ -403,7 +403,7 @@ case RUN:
 	mapaCotas[st.f][st.c]-mapaCotas[estado_final.f][estado_final.c],tiene_zapatillas)) {
         next = estado_final;
         next.brujula = st.brujula;  // Mantenemos la orientación original
-        next.zapatillas = st.zapatillas;  // Las zapatillas no cambian
+        next.zapatillas = tiene_zapatillas;  // Las zapatillas no cambian
     }
     break;
 }
@@ -440,10 +440,7 @@ case RUN:
 
 	return next;
 	}
-/*
-	
 
-	
 int ComportamientoRescatador::costeTerreno(
 	char terrenoDestino,
 	int cotaOrigen,
@@ -468,7 +465,8 @@ int ComportamientoRescatador::costeTerreno(
 		case 'S':
 			coste_t = 2; coste_a = 1;
 			break;
-		
+
+
 		default:
 			coste_t = 1; coste_a = 0;
 			break;
@@ -489,110 +487,8 @@ int ComportamientoRescatador::costeTerreno(
 		coste_t = 3; coste_a = 2;
 		break;
 	
-	default:
-		coste_t = 1; coste_a = 0;
-		break;
-	}
-		break;
 	
-	case TURN_L:
-	switch (terrenoDestino)
-	{
-	case 'A':
-		coste_t = 30; coste_a = 0;
-		break;
-	case 'T':
-		coste_t = 5; coste_a = 0;
-		break;
-	
-	case 'S':
-		coste_t = 1; coste_a = 0;
-		break;
-	
-	default:
-		coste_t = 1; coste_a = 0;
-		break;
-	}
-		break;
-
-	case TURN_SR:
-	switch (terrenoDestino)
-	{
-	case 'A':
-		coste_t = 16; coste_a = 0;
-		break;
-	case 'T':
-		coste_t = 3; coste_a = 0;
-		break;
-	
-	case 'S':
-		coste_t = 1; coste_a = 0;
-		break;
-	
-	default:
-		coste_t = 1; coste_a = 0;
-		break;
-	}
-		break;
-
-
 		default:
-		coste_t = 0; coste_a = 0;
-		break;
-	}
-
-	coste = coste_a + coste_t;
-	return coste;
-
-  
-}
-	*/
-int ComportamientoRescatador::costeTerreno(
-	char terrenoDestino,
-	int cotaOrigen,
-	int cotaDestino,
-	Action accion)
-{
-  int coste = 0;
-  int coste_t,coste_a;
-
-	switch (accion)
-	{
-	case WALK:
-		switch (terrenoDestino)
-		{
-		case 'A':
-			coste_t = 100; coste_a = 10;
-			break;
-		case 'T':
-			coste_t = 20; coste_a = 5;
-			break;
-		
-		case 'S':
-			coste_t = 2; coste_a = 1;
-			break;
-		
-		default:
-			coste_t = 1; coste_a = 0;
-			break;
-		}
-		break;
-	
-	case RUN:
-	switch (terrenoDestino)
-	{
-	case 'A':
-		coste_t = 150; coste_a = 15;
-		break;
-	case 'T':
-		coste_t = 35; coste_a = 5;
-		break;
-	
-	case 'S':
-		coste_t = 3; coste_a = 2;
-		break;
-	
-	default:
 		coste_t = 1; coste_a = 0;
 		break;
 	}
@@ -698,7 +594,7 @@ int ComportamientoRescatador::costeTerreno(
 		  walkNode.estado = applyR(WALK, currentNodo.estado, mapaResultado, mapaCotas);
 		  if (walkNode.estado != currentNodo.estado && !visitados.count(walkNode.estado)) {
 			walkNode.coste_total += costeTerreno(
-			  mapaResultado[walkNode.estado.f][walkNode.estado.c],
+			  mapaResultado[currentNodo.estado.f][currentNodo.estado.c],
 			  mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
 			  mapaCotas[walkNode.estado.f][walkNode.estado.c],
 			  WALK
@@ -713,7 +609,7 @@ int ComportamientoRescatador::costeTerreno(
 		  runNode.estado = applyR(RUN, currentNodo.estado, mapaResultado, mapaCotas);
 		  if (runNode.estado != currentNodo.estado && !visitados.count(runNode.estado)) {
 			runNode.coste_total += costeTerreno(
-			  mapaResultado[runNode.estado.f][runNode.estado.c],
+			  mapaResultado[currentNodo.estado.f][currentNodo.estado.c],
 			  mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
 			  mapaCotas[runNode.estado.f][runNode.estado.c],
 			  RUN
@@ -728,7 +624,12 @@ int ComportamientoRescatador::costeTerreno(
 		  NodoR srNode = currentNodo;
 		  srNode.estado = applyR(TURN_SR, currentNodo.estado, mapaResultado, mapaCotas);
 		  if (srNode.estado != currentNodo.estado && !visitados.count(srNode.estado)) {
-			srNode.coste_total += 1;
+			srNode.coste_total += costeTerreno(
+				mapaResultado[currentNodo.estado.f][currentNodo.estado.c],
+				mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
+				mapaCotas[runNode.estado.f][runNode.estado.c],
+				RUN
+			  );
 			srNode.secuencia.push_back(TURN_SR);
 			frontera.push(srNode);
 		  }
@@ -737,7 +638,12 @@ int ComportamientoRescatador::costeTerreno(
 		  NodoR lNode = currentNodo;
 		  lNode.estado = applyR(TURN_L, currentNodo.estado, mapaResultado, mapaCotas);
 		  if (lNode.estado != currentNodo.estado && !visitados.count(lNode.estado)) {
-			lNode.coste_total += 1;
+			lNode.coste_total += costeTerreno(
+				mapaResultado[currentNodo.estado.f][currentNodo.estado.c],
+				mapaCotas[currentNodo.estado.f][currentNodo.estado.c],
+				mapaCotas[runNode.estado.f][runNode.estado.c],
+				RUN
+			  );
 			lNode.secuencia.push_back(TURN_L);
 			frontera.push(lNode);
 		  }
