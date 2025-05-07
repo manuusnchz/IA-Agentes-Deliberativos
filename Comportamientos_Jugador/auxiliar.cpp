@@ -199,6 +199,7 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 {
 	int coste = 0;
 	int coste_t, coste_a;
+	int diferencia  = cotaDestino-cotaOrigen;
 
 	switch (accion)
 	{
@@ -256,6 +257,20 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 	
 	}
 
+	if (diferencia > 0)
+	{
+		coste_t += coste_a;
+	}
+	else if (diferencia < 0)
+	{
+		
+		coste_t -= coste_a;
+	}
+	if(coste_t < 1) coste_t = 1;
+
+	return coste_t;
+
+	/*
 	if (cotaDestino - cotaOrigen > 0)
 	{
 		int dif1 = cotaDestino - cotaOrigen;
@@ -266,6 +281,7 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 		int dif2 = cotaOrigen - cotaDestino;
 		coste_t -= dif2;
 	}
+	*/
 
 	return coste_t;
 }
