@@ -26,7 +26,7 @@ struct EstadoA {
         return brujula < otroEstado.brujula;
     }
     // Compara otros miembros si son relevantes para la unicidad del estado
-    return false; // Si todos los miembros son iguales, no es menor
+    return zapatillas < otroEstado.zapatillas; // Si todos los miembros son iguales, no es menor
 }
 
   bool operator==(const EstadoA &st) const

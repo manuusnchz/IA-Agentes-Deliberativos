@@ -219,6 +219,13 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 			coste_a = 1;
 			break;
 
+		case 'B':
+			if(tiene_zapatillas){
+				coste_t = 2;
+				coste_a = 1;
+			}
+			break;
+
 		default:
 			coste_t = 1;
 			coste_a = 0;
@@ -529,6 +536,8 @@ int ComportamientoAuxiliar::Heuristica(const EstadoA &origen, const EstadoA &des
     int dist = abs(origen.f - destino.f) + abs(origen.c - destino.c); // Manhattan
     return dist;
 }
+
+
 list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(
     const EstadoA &origen,
     const EstadoA &destino,
@@ -567,24 +576,38 @@ list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(
         if (explorados.count(actual.estado)) continue;
         explorados.insert(actual.estado);
 
-        // Probar acciones: WALK + GIROS
-        for (Action a : {TURN_SR, TURN_L, WALK}) {
-            EstadoA sig = applyA(a, actual.estado, terreno, altura);
+		// ACTUALIZACIÓN DE ZAPATILLAS SI ESTAMOS EN CASILLA 'D'
+        bool tieneZapatillasAhora = actual.estado.zapatillas;
+        if (terreno[actual.estado.f][actual.estado.c] == 'D') {
+            tieneZapatillasAhora = true;
 
-            if (sig.f == actual.estado.f && sig.c == actual.estado.c && a == WALK)
+			cout <<"Se le ponen las zpatillas" << endl;
+        }
+
+        // Probar acciones: WALK + GIROS
+        for (Action a : {TURN_SR,WALK}) {
+            EstadoA sig = applyA(a, actual.estado, terreno, altura);
+ 
+			// Actualizar estado de zapatillas para el nuevo nodo
+ 			sig.zapatillas = tieneZapatillasAhora;
+			
+			if (sig.f == actual.estado.f && sig.c == actual.estado.c && a == WALK)
                 continue; // Si no se mueve, no vale
 
             if (explorados.count(sig)) continue;
 
-            list<Action> nuevaSec = actual.secuencia;
-            nuevaSec.push_back(a);
+
 
             int nuevoCoste = actual.coste + costeTerreno(
-                terreno[sig.f][sig.c], 
+                terreno[actual.estado.f][actual.estado.c], 
                 altura[actual.estado.f][actual.estado.c],
                 altura[sig.f][sig.c],
                 a
             );
+
+
+            list<Action> nuevaSec = actual.secuencia;
+            nuevaSec.push_back(a);
 
             int heur = Heuristica(sig, destino);
 
