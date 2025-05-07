@@ -39,6 +39,7 @@ struct NodoR {
   EstadoR estado;
   list<Action> secuencia;
   int coste_total;
+  int coste_acumulado;
 
   bool operator<(const NodoR &n) const {
       return coste_total < n.coste_total;

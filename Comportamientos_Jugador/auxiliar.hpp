@@ -14,19 +14,46 @@ struct EstadoA {
   int brujula;
   bool zapatillas;
   
+  
+  bool operator<(const EstadoA& otroEstado) const {
+    if (f != otroEstado.f) {
+        return f < otroEstado.f;
+    }
+    if (c != otroEstado.c) {
+        return c < otroEstado.c;
+    }
+    if (brujula != otroEstado.brujula) {
+        return brujula < otroEstado.brujula;
+    }
+    // Compara otros miembros si son relevantes para la unicidad del estado
+    return false; // Si todos los miembros son iguales, no es menor
+}
+
   bool operator==(const EstadoA &st) const
   {
     return f == st.f && c == st.c && brujula == st.brujula and zapatillas ==
     st.zapatillas;
   }
+
+	bool operator!=(const EstadoA &other) const {
+		return !(*this == other);
+	}
 };
 
 struct NodoA{
 EstadoA estado;
+int coste_total;
+int coste_acumulado;
 list<Action> secuencia;
 bool operator==(const NodoA &node) const{
   return estado == node.estado;
 }
+};
+
+struct CompararNodoA{
+  bool operator()(const NodoA &a, const NodoA & b) const{
+    return a.coste_total > b.coste_total;
+  }
 };
 
 class ComportamientoAuxiliar : public Comportamiento
@@ -55,8 +82,34 @@ public:
   ComportamientoAuxiliar(const ComportamientoAuxiliar &comport) : Comportamiento(comport) {}
   ~ComportamientoAuxiliar() {}
 
-  Action think(Sensores sensores);
+  bool CasillaTransitableAuxiliarD(const EstadoA &st,
+    const vector<vector<unsigned char>> &terreno,
+    const vector<vector<unsigned char>> &altura);
 
+    list<Action> AlgoritmoAEstrella(
+      const EstadoA &origen,
+      const EstadoA &destino,
+      const vector<vector<unsigned char>> &terreno,
+      const vector<vector<unsigned char>> &altura) ;
+  
+  Action think(Sensores sensores);
+  int Heuristica(const EstadoA &actual, const EstadoA &objetivo);
+
+ bool CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+    const vector<vector<unsigned char>> &altura);
+
+  bool AlgoritmoAEstrella(const EstadoA &origen, const EstadoA &destino, list<Action> &plan);
+
+  void AnularMatrizA(vector<vector<unsigned char>> &m);
+  bool Find(const NodoA &st, const list<NodoA> &lista);
+  void PintaPlan(const list<Action> &plan, bool zap);
+  int costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion);
+
+  EstadoA applyA(Action accion, const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+    const vector<vector<unsigned char>> &altura);
+
+
+  EstadoA NextCasillaAuxiliar(const EstadoA &st);
   int interact(Action accion, int valor);
 
   Action ComportamientoAuxiliarNivel_0(Sensores sensores);
@@ -71,9 +124,9 @@ public:
   
   list<Action> AnchuraAuxiliar(const EstadoA &inicio, const EstadoA &final,const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura );
 
-  void VisualizaPlan(const EstadoA &st, const list<Action> &plan);
 
-  EstadoA NextCasillaAuxiliar(const EstadoA &st);
+  EstadoA NextCasillaAuxiliarD(const EstadoA &st);
+  void VisualizaPlan(const EstadoA &st, const list<Action> &plan);
   
 
 private:
@@ -82,6 +135,9 @@ private:
   int giro45Izq;
 
   int matrizAux[500][500];
+
+  EstadoA origen;
+  EstadoA destino;
   
 
   //Variables para nivel E

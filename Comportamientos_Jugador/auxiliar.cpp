@@ -1,9 +1,10 @@
 #include "../Comportamientos_Jugador/auxiliar.hpp"
 #include <iostream>
 #include "motorlib/util.h"
+#include <queue>
+#include <set>
 
-
-
+using namespace std;
 
 Action ComportamientoAuxiliar::think(Sensores sensores)
 {
@@ -12,17 +13,17 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 	switch (sensores.nivel)
 	{
 	case 0:
-		accion = ComportamientoAuxiliarNivel_0 (sensores);
+		accion = ComportamientoAuxiliarNivel_0(sensores);
 		break;
 	case 1:
-		accion = ComportamientoAuxiliarNivel_1 (sensores);
+		accion = ComportamientoAuxiliarNivel_1(sensores);
 		break;
 	case 2:
-		// accion = ComportamientoAuxiliarNivel_2 (sensores);
+		 accion = ComportamientoAuxiliarNivel_2 (sensores);
 		break;
 	case 3:
-		// accion = ComportamientoAuxiliarNivel_3 (sensores);
-		accion = ComportamientoAuxiliarNivel_E(sensores);
+		 accion = ComportamientoAuxiliarNivel_3 (sensores);
+		
 		break;
 	case 4:
 		// accion = ComportamientoAuxiliarNivel_4 (sensores);
@@ -37,174 +38,287 @@ int ComportamientoAuxiliar::interact(Action accion, int valor)
 	return 0;
 }
 
-void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores) 
+void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores)
 {
-    // Actualiza la casilla actual
-    m[sensores.posF][sensores.posC] = sensores.superficie[0];
+	// Actualiza la casilla actual
+	m[sensores.posF][sensores.posC] = sensores.superficie[0];
 
-    // Actualiza las casillas adyacentes según la orientación
-    switch (sensores.rumbo)
-    {
-    case norte:
-        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[1];  // Izquierda
-        m[sensores.posF-1][sensores.posC] = sensores.superficie[2];    // Centro
-        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[3];  // Derecha
-        break;
-    
-    case noreste:
-        m[sensores.posF-1][sensores.posC] = sensores.superficie[1];    // Frente izquierda
-        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[2];  // Frente
-        m[sensores.posF][sensores.posC+1] = sensores.superficie[3];    // Frente derecha
-        break;
-    
-    case este:
-        m[sensores.posF-1][sensores.posC+1] = sensores.superficie[1];  // Izquierda
-        m[sensores.posF][sensores.posC+1] = sensores.superficie[2];    // Centro
-        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[3];  // Derecha
-        break;
-    
-    case sureste:
-        m[sensores.posF][sensores.posC+1] = sensores.superficie[1];    // Frente izquierda
-        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[2];  // Frente
-        m[sensores.posF+1][sensores.posC] = sensores.superficie[3];    // Frente derecha
-        break;
-    
-    case sur:
-        m[sensores.posF+1][sensores.posC+1] = sensores.superficie[1];  // Izquierda
-        m[sensores.posF+1][sensores.posC] = sensores.superficie[2];    // Centro
-        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[3];  // Derecha
-        break;
-    
-    case suroeste:
-        m[sensores.posF+1][sensores.posC] = sensores.superficie[1];    // Frente izquierda
-        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[2];  // Frente
-        m[sensores.posF][sensores.posC-1] = sensores.superficie[3];    // Frente derecha
-        break;
-    
-    case oeste:
-        m[sensores.posF+1][sensores.posC-1] = sensores.superficie[1];  // Izquierda
-        m[sensores.posF][sensores.posC-1] = sensores.superficie[2];    // Centro
-        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[3];  // Derecha
-        break;
-    
-    case noroeste:
-        m[sensores.posF][sensores.posC-1] = sensores.superficie[1];    // Frente izquierda
-        m[sensores.posF-1][sensores.posC-1] = sensores.superficie[2];  // Frente
-        m[sensores.posF-1][sensores.posC] = sensores.superficie[3];    // Frente derecha
-        break;
-    }
+	// Actualiza las casillas adyacentes según la orientación
+	switch (sensores.rumbo)
+	{
+	case norte:
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[1]; // Izquierda
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[2];	  // Centro
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[3]; // Derecha
+		break;
+
+	case noreste:
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[1];	  // Frente izquierda
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[2]; // Frente
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[3];	  // Frente derecha
+		break;
+
+	case este:
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[1]; // Izquierda
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[2];	  // Centro
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[3]; // Derecha
+		break;
+
+	case sureste:
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[1];	  // Frente izquierda
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[2]; // Frente
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[3];	  // Frente derecha
+		break;
+
+	case sur:
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[1]; // Izquierda
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[2];	  // Centro
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[3]; // Derecha
+		break;
+
+	case suroeste:
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[1];	  // Frente izquierda
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[2]; // Frente
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[3];	  // Frente derecha
+		break;
+
+	case oeste:
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[1]; // Izquierda
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[2];	  // Centro
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[3]; // Derecha
+		break;
+
+	case noroeste:
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[1];	  // Frente izquierda
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[2]; // Frente
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[3];	  // Frente derecha
+		break;
+	}
 }
 
-int VeoCasillaInteresanteA(char i, char c, char d, bool zap){
-	if(c == 'X') return 2;
-	else if(i == 'X') return 1;
-	else if(d == 'X') return 3;
-	
-	
-	else if (!zap){
-		if(c == 'D') return 2;
-		else if(i == 'D') return 1;
-		else if(d == 'D') return 3;
+int VeoCasillaInteresanteA(char i, char c, char d, bool zap)
+{
+	if (c == 'X')
+		return 2;
+	else if (i == 'X')
+		return 1;
+	else if (d == 'X')
+		return 3;
+
+	else if (!zap)
+	{
+		if (c == 'D')
+			return 2;
+		else if (i == 'D')
+			return 1;
+		else if (d == 'D')
+			return 3;
 	}
 
-	else if(zap){
-		if(c == 'D') return 2;
-		else if(i == 'D') return 1;
-		else if(d == 'D') return 3;
+	else if (zap)
+	{
+		if (c == 'D')
+			return 2;
+		else if (i == 'D')
+			return 1;
+		else if (d == 'D')
+			return 3;
 	}
 
-	if( c == 'C') return 2;
-	else if( d == 'C') return 3;
-	else if (i == 'C')return 1;
-	
-	else return 0;
+	if (c == 'C')
+		return 2;
+	else if (d == 'C')
+		return 3;
+	else if (i == 'C')
+		return 1;
 
+	else
+		return 0;
 }
 
-int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc,char mi, char md){
+int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc, char mi, char md)
+{
 
 	// Prioridad 1: Casillas no exploradas ('?')
-	if (mc == '?' && c != 'P' && c != 'M') return 2;
-	if (mi == '?' && i != 'P' && i != 'M') return 1;
-	if (md == '?' && d != 'P' && d != 'M') return 3;
+	if (mc == '?' && c != 'P' && c != 'M')
+		return 2;
+	if (mi == '?' && i != 'P' && i != 'M')
+		return 1;
+	if (md == '?' && d != 'P' && d != 'M')
+		return 3;
 
 	// Prioridad 2: Víctimas ('X')
-	if (c == 'X') return 2;
-	if (i == 'X') return 1;
-	if (d == 'X') return 3;
-	
+	if (c == 'X')
+		return 2;
+	if (i == 'X')
+		return 1;
+	if (d == 'X')
+		return 3;
+
 	// Prioridad 3: Zapatillas ('D') si no las tenemos
-	if (!zap) {
-		if (c == 'D') return 2;
-		if (i == 'D') return 1;
-		if (d == 'D') return 3;
+	if (!zap)
+	{
+		if (c == 'D')
+			return 2;
+		if (i == 'D')
+			return 1;
+		if (d == 'D')
+			return 3;
 	}
-	
+
 	// Prioridad 4: Caminos ('C') y senderos ('S')
-	if (c == 'C' || c == 'S' || (zap && c == 'B')) return 2;
-    if (i == 'C' || i == 'S' || (zap && i == 'B')) return 1;
-    if (d == 'C' || d == 'S' || (zap && d == 'B')) return 3;
-	
+	if (c == 'C' || c == 'S' || (zap && c == 'B'))
+		return 2;
+	if (i == 'C' || i == 'S' || (zap && i == 'B'))
+		return 1;
+	if (d == 'C' || d == 'S' || (zap && d == 'B'))
+		return 3;
+
 	// Si no hay nada interesante
 	return 0;
-
 }
 
-char ViablePorAlturaA(char casilla, int dif){
-	if(abs(dif)<=1 ){
+char ViablePorAlturaA(char casilla, int dif)
+{
+	if (abs(dif) <= 1)
+	{
 		return casilla;
 	}
-	else{
+	else
+	{
 		return 'P';
 	}
 }
 
-EstadoA NextCasillaAuxiliar(const EstadoA &st){
+
+
+
+////////////////////////////////////////////////////
+
+int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion)
+{
+	int coste = 0;
+	int coste_t, coste_a;
+
+	switch (accion)
+	{
+	case WALK:
+		switch (terrenoDestino)
+		{
+		case 'A':
+			coste_t = 100;
+			coste_a = 10;
+			break;
+		case 'T':
+			coste_t = 20;
+			coste_a = 5;
+			break;
+
+		case 'S':
+			coste_t = 2;
+			coste_a = 1;
+			break;
+
+		default:
+			coste_t = 1;
+			coste_a = 0;
+			break;
+		}
+		break;
+
+	case TURN_SR:
+		switch (terrenoDestino)
+		{
+		case 'A':
+			coste_t = 16;
+			break;
+		case 'T':
+			coste_t = 3;
+			break;
+
+		case 'S':
+			coste_t = 1;
+			break;
+
+		default:
+			coste_t = 1;
+			break;
+		}
+		break;
+
+	
+	}
+
+	if (cotaDestino - cotaOrigen > 0)
+	{
+		int dif1 = cotaDestino - cotaOrigen;
+		coste_t += dif1;
+	}
+	else if (cotaOrigen - cotaDestino > 0)
+	{
+		int dif2 = cotaOrigen - cotaDestino;
+		coste_t -= dif2;
+	}
+
+	return coste_t;
+}
+
+EstadoA ComportamientoAuxiliar::applyA(Action accion, const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+			   const vector<vector<unsigned char>> &altura)
+{
+	EstadoA next = st;
+	switch (accion)
+	{
+	case WALK:
+		if (CasillaAccesibleAuxiliar(st, terreno, altura))
+		{
+			next = NextCasillaAuxiliar(st);
+		}
+		break;
+	case TURN_SR:
+		next.brujula = (next.brujula + 1) % 8;
+		break;
+	}
+	return next;
+}
+
+EstadoA ComportamientoAuxiliar::NextCasillaAuxiliar(const EstadoA &st)
+{
 	EstadoA siguiente = st;
 	switch (st.brujula)
 	{
 	case norte:
-	siguiente.f = st.f - 1;
-	break;
+		siguiente.f = st.f - 1;
+		break;
 	case noreste:
-	siguiente.f = st.f - 1;
-	siguiente.c = st.c + 1;
-	break;
+		siguiente.f = st.f - 1;
+		siguiente.c = st.c + 1;
+		break;
 	case este:
-	siguiente.c = st.c + 1;
-	break;
+		siguiente.c = st.c + 1;
+		break;
 	case sureste:
-	siguiente.f = st.f + 1;
-	siguiente.c = st.c + 1;
-	break;
+		siguiente.f = st.f + 1;
+		siguiente.c = st.c + 1;
+		break;
 	case sur:
-	siguiente.f = st.f + 1;
-	break;
+		siguiente.f = st.f + 1;
+		break;
 	case suroeste:
-	siguiente.f = st.f + 1;
-	siguiente.c = st.c - 1;
-	break;
+		siguiente.f = st.f + 1;
+		siguiente.c = st.c - 1;
+		break;
 	case oeste:
-	siguiente.c = st.c - 1;
-	break;
+		siguiente.c = st.c - 1;
+		break;
 	case noroeste:
-	siguiente.f = st.f - 1;
-	siguiente.c = st.c - 1;
+		siguiente.f = st.f - 1;
+		siguiente.c = st.c - 1;
 	}
 	return siguiente;
 }
 
-list<Action> AvanzaASaltosDeCaballo(){
-	list<Action> secuencia;
-	secuencia.push_back(WALK);
-	secuencia.push_back(WALK);
-	secuencia.push_back(TURN_SR);
-	secuencia.push_back(TURN_SR);
-	secuencia.push_back(WALK);
-	return secuencia;
-}
-
-bool CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+bool ComportamientoAuxiliar::CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura)
 {
 	EstadoA next = NextCasillaAuxiliar(st);
@@ -216,101 +330,30 @@ bool CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned ch
 }
 
 
-
-EstadoA applyA(Action accion, const EstadoA & st, const vector<vector<unsigned char>> &terreno,
-	const vector<vector<unsigned char>> &altura)
+void ComportamientoAuxiliar::AnularMatrizA(vector<vector<unsigned char>> &m)
 {
-	EstadoA next = st;
-	switch(accion){
-	case WALK:
-	if (CasillaAccesibleAuxiliar(st,terreno,altura)){
-	next = NextCasillaAuxiliar(st);
+	for (int i = 0; i < m[0].size(); i++)
+	{
+		for (int j = 0; j < m.size(); j++)
+		{
+			m[i][j] = 0;
+		}
 	}
-	break;
-	case TURN_SR:
-	next.brujula = (next.brujula+1)%8;
-	break;
-	}
-	return next;
 }
 
-bool Find (const NodoA & st, const list<NodoA> &lista){
+
+bool ComportamientoAuxiliar::Find(const NodoA &st, const list<NodoA> &lista)
+{
 	auto it = lista.begin();
-	
-	while (it != lista.end() and !((*it) == st)){
+
+	while (it != lista.end() and !((*it) == st))
+	{
 		it++;
 	}
-	
+
 	return (it != lista.end());
 }
 
-
-
-list<Action> ComportamientoAuxiliar::AnchuraAuxiliar(const EstadoA &inicio, const EstadoA &final,const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura ){
-	NodoA current_node;
-	list<NodoA> frontier;
-	list<NodoA> explored;
-	list<Action> path;
-
-	current_node.estado = inicio; // Asignar estado a nodo inicial
-	frontier.push_back(current_node);
-	bool SolutionFound = (current_node.estado.f == final.f and current_node.estado.c == final.c);
-	while(!SolutionFound and !frontier.empty()){
-		frontier.pop_front();
-		explored.push_back(current_node);
-
-		//Se comprueba si estoy en casilla de zapatillas
-		if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
-			current_node.estado.zapatillas = true;
-		}
-
-		//Genera el hijo resultante de aplicar walk
-		NodoA child_WALK = current_node;
-		//NO ENCUENTRO applyA
-		//child_WALK.estado = apply(WALK,current_node.estado,terreno,altura);
-		if(child_WALK.estado.f == final.f && child_WALK.estado.c == final.c){
-			//El hijo generado es solucion
-			child_WALK.secuencia.push_back(WALK);
-			current_node = child_WALK;
-			SolutionFound = true;
-		}
-		else if (!Find(child_WALK, frontier) and !Find(child_WALK, explored)){
-			// Se mete en la lista frontier después de añadir a secuencia la acción
-			child_WALK.secuencia.push_back(WALK);
-			frontier.push_back(child_WALK);
-		}
-		// Genero el hijo resultante de aplicar la acción TURN_SR
-		if (!SolutionFound){
-    		NodoA child_TURN_SR = current_node;
-    		child_TURN_SR.estado = applyA(TURN_SR, current_node.estado, terreno, altura);
-		
-    		if (!Find(child_TURN_SR, frontier) and !Find(child_TURN_SR, explored)){
-        		child_TURN_SR.secuencia.push_back(TURN_SR);
-        		frontier.push_back(child_TURN_SR);
-    		}
-		}
-		// Paso a evaluar el siguiente nodo en la lista "frontier"
-		if (!SolutionFound and !frontier.empty()){
-    		current_node = frontier.front();
-    			SolutionFound = (current_node.estado.f == final.f and current_node.estado.c == final.c);
-		}
-
-	}
-
-	if(SolutionFound) path = current_node.secuencia;
-
-	return path;
-}
-void AnularMatrizA(vector<vector<unsigned char>> &m)
-{
-for (int i = 0; i < m[0].size(); i++)
-{
-for (int j = 0; j < m.size(); j++)
-{
-m[i][j] = 0;
-}
-}
-}
 
 void ComportamientoAuxiliar::VisualizaPlan(const EstadoA &st, const list<Action> &plan)
 {
@@ -365,70 +408,332 @@ void ComportamientoAuxiliar::VisualizaPlan(const EstadoA &st, const list<Action>
 
 
 
+void ComportamientoAuxiliar::PintaPlan(const list<Action> &plan, bool zap)
+{
+	auto it = plan.begin();
+	while (it != plan.end())
+	{
+		if (*it == WALK)
+		{
+			cout << "W ";
+		}
+		else if (*it == RUN)
+		{
+			cout << "R ";
+		}
+		else if (*it == TURN_SR)
+		{
+			cout << "r ";
+		}
+		else if (*it == TURN_L)
+		{
+			cout << "L ";
+		}
+		else if (*it == CALL_ON)
+		{
+			cout << "C ";
+		}
+		else if (*it == CALL_OFF)
+		{
+			cout << "c ";
+		}
+		else if (*it == IDLE)
+		{
+			cout << "I ";
+		}
+		else
+		{
+			cout << "-_ ";
+		}
+		it++;
+	}
+	cout << "( longitud " << plan.size();
+	if (zap)
+		cout << "[Z]";
+	cout << ")\n";
+}
+/*
+bool ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &origen, const EstadoA &destino, list<Action> &plan) {
+	plan.clear();
+
+	priority_queue<NodoA, vector<NodoA>, CompararNodoA> frontera;
+	set<EstadoA> visitados;
+	NodoA nodoActual;
+
+	nodoActual.estado = origen;
+	nodoActual.coste_total = 0;
+	nodoActual.secuencia.clear();
+
+	frontera.push(nodoActual);
+
+	while (!frontera.empty()) {
+		nodoActual = frontera.top();
+		frontera.pop();
+
+		if (visitados.count(nodoActual.estado)) continue;
+		visitados.insert(nodoActual.estado);
+
+		if (nodoActual.estado.f == destino.f && nodoActual.estado.c == destino.c) {
+			plan = nodoActual.secuencia;
+			return true;
+		}
+
+		// Actualizar estado (por si recoge zapatillas)
+		if (mapaResultado[nodoActual.estado.f][nodoActual.estado.c] == 'D') {
+			nodoActual.estado.zapatillas = true;
+		}
+
+		// ========== Generar sucesores ==========
+
+		// WALK
+		EstadoA sigWalk = applyA(WALK, nodoActual.estado, mapaResultado, mapaCotas);
+		if (sigWalk != nodoActual.estado && !visitados.count(sigWalk)) {
+			NodoA nuevo;
+			nuevo.estado = sigWalk;
+			nuevo.secuencia = nodoActual.secuencia;
+			nuevo.secuencia.push_back(WALK);
+			nuevo.coste_total = nodoActual.coste_total + costeTerreno(
+				mapaResultado[nodoActual.estado.f][nodoActual.estado.c],
+				mapaCotas[nodoActual.estado.f][nodoActual.estado.c],
+				mapaCotas[sigWalk.f][sigWalk.c],
+				WALK
+			);
+			// Heurística simple: distancia Manhattan
+			nuevo.coste_total += abs(sigWalk.f - destino.f) + abs(sigWalk.c - destino.c);
+			frontera.push(nuevo);
+		}
+
+		// TURN_SR
+		EstadoA sigTurn = applyA(TURN_SR, nodoActual.estado, mapaResultado, mapaCotas);
+		if (sigTurn != nodoActual.estado && !visitados.count(sigTurn)) {
+			NodoA nuevo;
+			nuevo.estado = sigTurn;
+			nuevo.secuencia = nodoActual.secuencia;
+			nuevo.secuencia.push_back(TURN_SR);
+			nuevo.coste_total = nodoActual.coste_total + costeTerreno(
+				mapaResultado[nodoActual.estado.f][nodoActual.estado.c],
+				mapaCotas[nodoActual.estado.f][nodoActual.estado.c],
+				mapaCotas[nodoActual.estado.f][nodoActual.estado.c],
+				TURN_SR
+			);
+			nuevo.coste_total += abs(sigTurn.f - destino.f) + abs(sigTurn.c - destino.c);
+			frontera.push(nuevo);
+		}
+	}
+
+	return false;
+}
+*/
+
+int ComportamientoAuxiliar::Heuristica(const EstadoA &origen, const EstadoA &destino) {
+    int dist = abs(origen.f - destino.f) + abs(origen.c - destino.c); // Manhattan
+    return dist;
+}
+list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(
+    const EstadoA &origen,
+    const EstadoA &destino,
+    const vector<vector<unsigned char>> &terreno,
+    const vector<vector<unsigned char>> &altura) 
+{
+    struct Nodo {
+        EstadoA estado;
+        list<Action> secuencia;
+        int coste;
+        int prioridad; // f = g + h
+        bool operator>(const Nodo &n) const {
+            return prioridad > n.prioridad;
+        }
+    };
+
+    priority_queue<Nodo, vector<Nodo>, greater<Nodo>> frontera;
+    set<EstadoA> explorados;
+
+    Nodo inicio;
+    inicio.estado = origen;
+    inicio.secuencia = {};
+    inicio.coste = 0;
+    inicio.prioridad = Heuristica(origen, destino);
+
+    frontera.push(inicio);
+
+    while (!frontera.empty()) {
+        Nodo actual = frontera.top();
+        frontera.pop();
+
+        if (actual.estado.f == destino.f && actual.estado.c == destino.c) {
+            return actual.secuencia;
+        }
+
+        if (explorados.count(actual.estado)) continue;
+        explorados.insert(actual.estado);
+
+        // Probar acciones: WALK + GIROS
+        for (Action a : {TURN_SR, TURN_L, WALK}) {
+            EstadoA sig = applyA(a, actual.estado, terreno, altura);
+
+            if (sig.f == actual.estado.f && sig.c == actual.estado.c && a == WALK)
+                continue; // Si no se mueve, no vale
+
+            if (explorados.count(sig)) continue;
+
+            list<Action> nuevaSec = actual.secuencia;
+            nuevaSec.push_back(a);
+
+            int nuevoCoste = actual.coste + costeTerreno(
+                terreno[sig.f][sig.c], 
+                altura[actual.estado.f][actual.estado.c],
+                altura[sig.f][sig.c],
+                a
+            );
+
+            int heur = Heuristica(sig, destino);
+
+            frontera.push({sig, nuevaSec, nuevoCoste, nuevoCoste + heur});
+        }
+    }
+
+    return {}; // No se encontró camino
+}
+
+
+////////////////////////////////////////////////////////////////
+
+
+
+list<Action> ComportamientoAuxiliar::AnchuraAuxiliar(const EstadoA &inicio, const EstadoA &final, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura)
+{
+	NodoA current_node;
+	list<NodoA> frontier;
+	list<NodoA> explored;
+	list<Action> path;
+
+	current_node.estado = inicio; // Asignar estado a nodo inicial
+	frontier.push_back(current_node);
+	bool SolutionFound = (current_node.estado.f == final.f and current_node.estado.c == final.c);
+	while (!SolutionFound and !frontier.empty())
+	{
+		frontier.pop_front();
+		explored.push_back(current_node);
+
+		// Se comprueba si estoy en casilla de zapatillas
+		if (terreno[current_node.estado.f][current_node.estado.c] == 'D')
+		{
+			current_node.estado.zapatillas = true;
+		}
+
+		// Genera el hijo resultante de aplicar walk
+		NodoA child_WALK = current_node;
+		// NO ENCUENTRO applyA
+		// child_WALK.estado = apply(WALK,current_node.estado,terreno,altura);
+		if (child_WALK.estado.f == final.f && child_WALK.estado.c == final.c)
+		{
+			// El hijo generado es solucion
+			child_WALK.secuencia.push_back(WALK);
+			current_node = child_WALK;
+			SolutionFound = true;
+		}
+		else if (!Find(child_WALK, frontier) and !Find(child_WALK, explored))
+		{
+			// Se mete en la lista frontier después de añadir a secuencia la acción
+			child_WALK.secuencia.push_back(WALK);
+			frontier.push_back(child_WALK);
+		}
+		// Genero el hijo resultante de aplicar la acción TURN_SR
+		if (!SolutionFound)
+		{
+			NodoA child_TURN_SR = current_node;
+			child_TURN_SR.estado = applyA(TURN_SR, current_node.estado, terreno, altura);
+
+			if (!Find(child_TURN_SR, frontier) and !Find(child_TURN_SR, explored))
+			{
+				child_TURN_SR.secuencia.push_back(TURN_SR);
+				frontier.push_back(child_TURN_SR);
+			}
+		}
+		// Paso a evaluar el siguiente nodo en la lista "frontier"
+		if (!SolutionFound and !frontier.empty())
+		{
+			current_node = frontier.front();
+			SolutionFound = (current_node.estado.f == final.f and current_node.estado.c == final.c);
+		}
+	}
+
+	if (SolutionFound)
+		path = current_node.secuencia;
+
+	return path;
+}
+
+
+
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 {
 	Action accion;
 
-	if(sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r'){
+	if (sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r')
+	{
 		giro45Izq = 3;
 		accion = TURN_SR;
 	}
 
-	if(sensores.superficie[0] == 'D') tiene_zapatillas = true;
+	if (sensores.superficie[0] == 'D')
+		tiene_zapatillas = true;
 
-	if(last_action == WALK){
+	if (last_action == WALK)
+	{
 		matrizAux[sensores.posF][sensores.posC]++;
 	}
 
-	if (matrizAux[sensores.posF][sensores.posC] >= 6) {
+	if (matrizAux[sensores.posF][sensores.posC] >= 6)
+	{
 		// Está en bucle: aplica una acción distinta
 		giro45Izq = rand() % 5;
-		accion = TURN_SR;  // TURN_SR aleatorio
+		accion = TURN_SR;							 // TURN_SR aleatorio
 		matrizAux[sensores.posF][sensores.posC] = 1; // resetea el contador
 		return accion;
 	}
-	
-	
-	
-	if(sensores.superficie[0] == 'X'){
+
+	if (sensores.superficie[0] == 'X')
+	{
 		accion = IDLE;
 	}
 
-	else if(giro45Izq != 0){
+	else if (giro45Izq != 0)
+	{
 		accion = TURN_SR;
 		giro45Izq--;
 	}
-	
-	else{
-		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
-		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
-		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
 
-		if(sensores.agentes[2] == 'r'){
+	else
+	{
+		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1] - sensores.cota[0]);
+		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2] - sensores.cota[0]);
+		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3] - sensores.cota[0]);
+
+		if (sensores.agentes[2] == 'r')
+		{
 			c = 'P';
 		}
-		
 
-		
-		int pos = VeoCasillaInteresanteA(i,c,d,tiene_zapatillas);
-		switch(pos)
+		int pos = VeoCasillaInteresanteA(i, c, d, tiene_zapatillas);
+		switch (pos)
 		{
-			case 2:
-				accion = WALK;
-				break;
-			case 1:
-				giro45Izq = 6;
-				accion = TURN_SR;
-				break;
-			case 3:
-				accion = TURN_SR;
-				break;
-			case 0:
+		case 2:
+			accion = WALK;
+			break;
+		case 1:
+			giro45Izq = 6;
+			accion = TURN_SR;
+			break;
+		case 3:
+			accion = TURN_SR;
+			break;
+		case 0:
 			giro45Izq = 5;
 			accion = TURN_SR;
 			break;
-		
-	}
+		}
 	}
 
 	last_action = accion;
@@ -439,71 +744,73 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 {
 	Action accion;
 
-	if(sensores.superficie[0] == 'D') tiene_zapatillas = true;
+	if (sensores.superficie[0] == 'D')
+		tiene_zapatillas = true;
 
-	SituarSensorEnMapaA(mapaResultado,mapaCotas,sensores);
-	
-	if(sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r'){
+	SituarSensorEnMapaA(mapaResultado, mapaCotas, sensores);
+
+	if (sensores.superficie[2] == 'X' && sensores.agentes[2] == 'r')
+	{
 		giro45Izq = 3;
 		accion = TURN_SR;
 	}
 
-	
-
-	if(last_action == WALK){
+	if (last_action == WALK)
+	{
 		matrizAux[sensores.posF][sensores.posC]++;
 	}
 
-	if (matrizAux[sensores.posF][sensores.posC] >= 4) {
+	if (matrizAux[sensores.posF][sensores.posC] >= 4)
+	{
 		// Está en bucle: aplica una acción distinta
 		giro45Izq = rand() % 5;
-		accion = TURN_SR;  // TURN_SR aleatorio
+		accion = TURN_SR;							 // TURN_SR aleatorio
 		matrizAux[sensores.posF][sensores.posC] = 1; // resetea el contador
 		return accion;
 	}
-	
 
-	else if(giro45Izq != 0){
+	else if (giro45Izq != 0)
+	{
 		accion = TURN_SR;
 		giro45Izq--;
 	}
-	
-	else{
-		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
-		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
-		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
 
-		if(sensores.agentes[2] == 'r'){
+	else
+	{
+		char i = ViablePorAlturaA(sensores.superficie[1], sensores.cota[1] - sensores.cota[0]);
+		char c = ViablePorAlturaA(sensores.superficie[2], sensores.cota[2] - sensores.cota[0]);
+		char d = ViablePorAlturaA(sensores.superficie[3], sensores.cota[3] - sensores.cota[0]);
+
+		if (sensores.agentes[2] == 'r')
+		{
 			c = 'P';
 		}
-		char mi = mapaResultado[sensores.posF][sensores.posC-1]; // izquierda
-		char mc = mapaResultado[sensores.posF-1][sensores.posC]; // centro
-		char md = mapaResultado[sensores.posF][sensores.posC+1]; // derecha
-		
+		char mi = mapaResultado[sensores.posF][sensores.posC - 1]; // izquierda
+		char mc = mapaResultado[sensores.posF - 1][sensores.posC]; // centro
+		char md = mapaResultado[sensores.posF][sensores.posC + 1]; // derecha
+
 		int pos = VeoCasillaInteresanteA1(i, c, d, tiene_zapatillas, mi, mc, md);
-		switch(pos)
+		switch (pos)
 		{
-			case 2:
-				accion = WALK;
-				break;
-			case 1:
-				giro45Izq = 6;
-				accion = TURN_SR;
-				break;
-			case 3:
-				accion = TURN_SR;
-				break;
-			case 0:
+		case 2:
+			accion = WALK;
+			break;
+		case 1:
+			giro45Izq = 6;
+			accion = TURN_SR;
+			break;
+		case 3:
+			accion = TURN_SR;
+			break;
+		case 0:
 			giro45Izq = 5;
 			accion = TURN_SR;
 			break;
-		
-	}
+		}
 	}
 
 	last_action = accion;
 	return accion;
-	
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
@@ -513,15 +820,122 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
 {
+	Action accion = IDLE;
+
+	if (sensores.superficie[0] == 'D')
+	{
+		tiene_zapatillas = true;
+	}
+
+	if (!hayPlan) {
+		// Estado origen
+		EstadoA origen;
+		origen.f = sensores.posF;
+		origen.c = sensores.posC;
+		origen.brujula = sensores.rumbo;
+		origen.zapatillas = tiene_zapatillas;
+
+		// Estado destino
+		EstadoA destino;
+		destino.f = sensores.destinoF;
+		destino.c = sensores.destinoC;
+		destino.brujula = 0; // La orientación final no es crítica normalmente
+		destino.zapatillas = false;
+
+		// Calcular plan con A*
+		plan = AlgoritmoAEstrella(origen, destino, mapaResultado, mapaCotas);
+		hayPlan = !plan.empty();
+	}
+
+	if (hayPlan)
+	{
+		EstadoA estadoActual;
+		estadoActual.f = sensores.posF;
+		estadoActual.c = sensores.posC;
+		estadoActual.brujula = sensores.rumbo;
+		estadoActual.zapatillas = tiene_zapatillas;
+
+		VisualizaPlan(estadoActual, plan);
+	}
+
+	if (hayPlan && !plan.empty())
+	{
+		accion = plan.front();
+		plan.pop_front();
+	}
+	if (plan.empty())
+	{
+		hayPlan = false;
+	}
+	return accion;
 }
+/*
+
+
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
+{
+	Action accion = IDLE;
+
+	if (sensores.superficie[0] == 'D')
+	{
+		tiene_zapatillas = true;
+	}
+
+    
+    if (!hayPlan) {
+        // a. Construir el estado inicial (EstadoA)
+        origen.f = sensores.posF;
+        origen.c = sensores.posC;
+        origen.brujula = sensores.rumbo;
+        origen.zapatillas = tiene_zapatillas; // Asegúrate de actualizar esto
+
+        // b. Construir el estado destino (EstadoA)
+        destino.f = sensores.destinoF; // O donde sea el objetivo del Auxiliar
+        destino.c = sensores.destinoC;
+        destino.brujula = 0; //  O la orientación que sea relevante
+        destino.zapatillas = false; 
+
+        // c. Calcular el plan usando A*
+        hayPlan = AlgoritmoAEstrella(origen, destino, plan); 
+    }
+
+    
+	if (hayPlan)
+	{
+		EstadoA estadoActual;
+		estadoActual.f = sensores.posF;
+		estadoActual.c = sensores.posC;
+		estadoActual.brujula = sensores.rumbo;
+		estadoActual.zapatillas = tiene_zapatillas; // Usamos la variable miembro que lleva el estado de las zapatillas del agente
+
+		VisualizaPlan(estadoActual, plan);
+	}
+
+	if (hayPlan && !plan.empty())
+	{
+		accion = plan.front();
+		plan.pop_front();
+	}
+	if (plan.empty())
+	{
+		hayPlan = false;
+	}
+	return accion;
+
+
+}
+	*/
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
 {
+	Action accion = IDLE;
 }
 
-Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores)
+{
 	Action accion = IDLE;
-	if (!hayPlan){
+	if (!hayPlan)
+	{
 		// Invocar al método de búsqueda
 		EstadoA inicio, fin;
 		inicio.f = sensores.posF;
@@ -531,15 +945,17 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
 		fin.f = sensores.destinoF;
 		fin.c = sensores.destinoC;
 		plan = AnchuraAuxiliar(inicio, fin, mapaResultado, mapaCotas);
-		VisualizaPlan(inicio,plan);
-		hayPlan = plan.size() != 0 ;
+		VisualizaPlan(inicio, plan);
+		hayPlan = plan.size() != 0;
 	}
-	if (hayPlan and plan.size()>0){
+	if (hayPlan and plan.size() > 0)
+	{
 		accion = plan.front();
 		plan.pop_front();
 	}
-	
-	if (plan.size()== 0){
+
+	if (plan.size() == 0)
+	{
 		hayPlan = false;
 	}
 	return accion;

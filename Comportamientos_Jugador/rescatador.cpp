@@ -1177,6 +1177,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensores)
 {
+	return IDLE;
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores)
