@@ -447,6 +447,7 @@ int ComportamientoRescatador::costeTerreno(
 {
 	int coste = 0;
 	int coste_t, coste_a;
+	int diferencia  = cotaDestino-cotaOrigen;
 
 	switch (accion)
 	{
@@ -541,16 +542,16 @@ int ComportamientoRescatador::costeTerreno(
 	
 	}
 
-	if (cotaDestino - cotaOrigen > 0)
+	if (diferencia > 0)
 	{
-		int dif1 = cotaDestino - cotaOrigen;
-		coste_t += dif1;
+		coste_t += coste_a*diferencia;
 	}
-	else if (cotaOrigen - cotaDestino > 0)
+	else if (diferencia < 0)
 	{
-		int dif2 = cotaOrigen - cotaDestino;
-		coste_t -= dif2;
+		
+		coste_t -= coste_a*(-diferencia);
 	}
+	if(coste_t < 1) coste_t = 1;
 
 	return coste_t;
 }
