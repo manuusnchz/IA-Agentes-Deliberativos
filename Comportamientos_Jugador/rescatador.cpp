@@ -36,7 +36,209 @@ int ComportamientoRescatador::interact(Action accion, int valor)
 	return 0;
 }
 
-////////////////////////////////////////////////
+
+/*FUNCIONES COMUNES NIVEL 0 Y 1*/
+char ViablePorAlturaR(char casilla, int dif, bool zap)
+{
+	if (abs(dif) <= 1 or (zap and abs(dif) <= 2))
+	{
+		return casilla;
+	}
+	else
+	{
+		return 'P';
+	}
+}
+
+void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores)
+{
+	m[sensores.posF][sensores.posC] = sensores.superficie[0];
+
+	int pos = 1;
+	switch (sensores.rumbo)
+	{
+	case norte:
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[1];
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[2];
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[3];
+		break;
+
+	case noreste:
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[1];
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[2];
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[3];
+		break;
+
+	case este:
+		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[1];
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[2];
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[3];
+		break;
+
+	case sureste:
+		m[sensores.posF][sensores.posC + 1] = sensores.superficie[1];
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[2];
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[3];
+		break;
+
+	case sur:
+		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[1];
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[2];
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[3];
+		break;
+
+	case suroeste:
+		m[sensores.posF + 1][sensores.posC] = sensores.superficie[1];
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[2];
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[3];
+		break;
+
+	case oeste:
+		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[1];
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[2];
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[3];
+		break;
+
+	case noroeste:
+		m[sensores.posF][sensores.posC - 1] = sensores.superficie[1];
+		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[2];
+		m[sensores.posF - 1][sensores.posC] = sensores.superficie[3];
+		break;
+	}
+}
+
+/*FUNCIONES NIVEL 0*/
+int VeoCasillaInteresanteR(char i, char c, char d, bool zap)
+{
+	if (c == 'X')
+		return 2;
+	
+	else if (i == 'X')
+		return 1;
+	
+	else if (d == 'X')
+		return 3;
+
+	else if (!zap)
+	{
+		if (c == 'D')
+			return 2;
+		else if (i == 'D')
+			return 1;
+		else if (d == 'D')
+			return 3;
+	}
+
+	else if (zap)
+	{
+		if (c == 'D')
+			return 2;
+		else if (i == 'D')
+			return 1;
+		else if (d == 'D')
+			return 3;
+	}
+
+	if (c == 'C')
+		return 2;
+	else if (i == 'C')
+		return 1;
+	else if (d == 'C')
+		return 3;
+
+	else
+		return 0;
+	
+}
+
+/*FUNCIONES NIVEL 1*/
+int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int ti, int tc, int td)
+{
+	int minimo = 6000;
+	int salida = 0;
+
+	vector<int> valores(3, -1);
+
+	// Prioridad 1: Casillas no exploradas y que sean caminos
+	if (c == 'S' or c == 'C' or c == 'X' or c == 'D')
+	{
+		valores[0] = tc;
+		if (tc < minimo)
+		{
+			minimo = tc;
+			salida = 2;
+		}
+	}
+	if (i == 'S' or i == 'C' or i == 'X' or i == 'D')
+	{
+		valores[1] = ti;
+		if (ti < minimo)
+		{
+			minimo = ti;
+			salida = 1;
+		}
+	}
+	if (d == 'S' or d == 'C' or d == 'X' or d == 'D')
+	{
+		valores[2] = td;
+		if (td < minimo)
+		{
+			minimo = td;
+			salida = 3;
+		}
+	}
+	
+	return salida;
+}
+
+pair<int, int> Funcion_delante(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores)
+{
+	pair<int, int> salida;
+
+	switch (sensores.rumbo)
+	{
+	case norte:
+		return make_pair(sensores.posF - 1, sensores.posC);
+		break;
+
+	case noreste:
+
+		return make_pair(sensores.posF - 1, sensores.posC + 1);
+		break;
+
+	case este:
+
+		return make_pair(sensores.posF, sensores.posC + 1);
+		break;
+
+	case sureste:
+
+		return make_pair(sensores.posF + 1, sensores.posC + 1);
+		break;
+
+	case sur:
+
+		return make_pair(sensores.posF + 1, sensores.posC);
+		break;
+
+	case suroeste:
+
+		return make_pair(sensores.posF + 1, sensores.posC - 1);
+		break;
+
+	case oeste:
+
+		return make_pair(sensores.posF, sensores.posC - 1);
+		break;
+
+	case noroeste:
+
+		return make_pair(sensores.posF - 1, sensores.posC - 1);
+		break;
+	}
+}
+
+/*FUNCIONES NIVEL 2*/
 bool CasillaTransitableRescatadorRUN(char casilla_intermedia,
 									 char casilla_final, int dif_alt, bool zapatillas)
 {
@@ -140,11 +342,13 @@ void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Actio
 			if (estado_intermedio.f >= 0 && estado_intermedio.f < mapaConPlan.size() &&
 				estado_intermedio.c >= 0 && estado_intermedio.c < mapaConPlan[0].size())
 			{
-				mapaConPlan[estado_intermedio.f][estado_intermedio.c] = 3; // Marca el paso intermedio (puedes usar otro valor si quieres diferenciar)
+				// Marca el paso intermedio 
+				mapaConPlan[estado_intermedio.f][estado_intermedio.c] = 3; 
 			}
 
 			// Simular el segundo paso de RUN desde el estado intermedio
 			EstadoR estado_final = estado_intermedio;
+			
 			// La brújula no cambia durante RUN, por lo que usamos la del estado intermedio/original
 			switch (estado_final.brujula)
 			{
@@ -182,52 +386,18 @@ void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Actio
 			if (estado_final.f >= 0 && estado_final.f < mapaConPlan.size() &&
 				estado_final.c >= 0 && estado_final.c < mapaConPlan[0].size())
 			{
-				mapaConPlan[estado_final.f][estado_final.c] = 3; // Marca el paso final
+				// Marca el paso final
+				mapaConPlan[estado_final.f][estado_final.c] = 3; 
 			}
 
 			// Actualizar el estado temporal de visualización a la posición final
+			
 			cst = estado_final;
+			
 			// La brújula y las zapatillas no cambian con RUN, se mantienen las del estado original cst.
 
 			break;
 		}
-		/*
-		case RUN:
-		switch (cst.brujula)
-		{
-		case 0:
-		cst.f--;
-		break;
-		case 1:
-		cst.f--;
-		cst.c++;
-		break;
-		case 2:
-		cst.c++;
-		break;
-		case 3:
-		cst.f++;
-		cst.c++;
-		break;
-		case 4:
-		cst.f++;
-		break;
-		case 5:
-		cst.f++;
-		cst.c--;
-		break;
-		case 6:
-		cst.c--;
-		break;
-		case 7:
-		cst.f--;
-		cst.c--;
-		break;
-		}
-		mapaConPlan[cst.f][cst.c] = 3;
-		break;
-
-		*/
 		case WALK:
 			switch (cst.brujula)
 			{
@@ -318,7 +488,7 @@ void ComportamientoRescatador::PintaPlan(const list<Action> &plan, bool zap)
 	cout << ")\n";
 }
 
-void AnularMatrizR(vector<vector<unsigned char>> &m)
+void ComportamientoRescatador::AnularMatrizR(vector<vector<unsigned char>> &m)
 {
 	for (int i = 0; i < m[0].size(); i++)
 	{
@@ -329,52 +499,43 @@ void AnularMatrizR(vector<vector<unsigned char>> &m)
 	}
 }
 
-EstadoR NextCasillaAuxiliar(const EstadoR &st)
+EstadoR ComportamientoRescatador::NextCasillaRescatador(const EstadoR &st)
 {
 	EstadoR siguiente = st;
+
 	switch (st.brujula)
 	{
-	case norte:
-		siguiente.f = st.f - 1;
+	case 0: // Norte
+		siguiente.f--;
 		break;
-	case noreste:
-		siguiente.f = st.f - 1;
-		siguiente.c = st.c + 1;
+	case 1: // Noreste
+		siguiente.f--;
+		siguiente.c++;
 		break;
-	case este:
-		siguiente.c = st.c + 1;
+	case 2: // Este
+		siguiente.c++;
 		break;
-	case sureste:
-		siguiente.f = st.f + 1;
-		siguiente.c = st.c + 1;
+	case 3: // Sureste
+		siguiente.f++;
+		siguiente.c++;
 		break;
-	case sur:
-		siguiente.f = st.f + 1;
+	case 4: // Sur
+		siguiente.f++;
 		break;
-	case suroeste:
-		siguiente.f = st.f + 1;
-		siguiente.c = st.c - 1;
+	case 5: // Suroeste
+		siguiente.f++;
+		siguiente.c--;
 		break;
-	case oeste:
-		siguiente.c = st.c - 1;
+	case 6: // Oeste
+		siguiente.c--;
 		break;
-	case noroeste:
-		siguiente.f = st.f - 1;
-		siguiente.c = st.c - 1;
+	case 7: // Noroeste
+		siguiente.f--;
+		siguiente.c--;
+		break;
 	}
-	return siguiente;
-}
 
-bool ComportamientoRescatador::CasillaAccesibleAuxiliar(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
-														const vector<vector<unsigned char>> &altura)
-{
-	EstadoR next = NextCasillaAuxiliar(st);
-	bool check1 = false, check2 = false, check3 = false;
-	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M';
-	check2 = terreno[next.f][next.c] != 'B' or (terreno[next.f][next.c] == 'B' and
-												st.zapatillas);
-	check3 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1;
-	return check1 and check2 and check3;
+	return siguiente;
 }
 
 EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const vector<vector<unsigned char>> &terreno,
@@ -390,12 +551,10 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const
 	{
 		if (CasillaTransitableRescatador(st, terreno, altura))
 		{
-			next = NextCasillaAuxiliar(st);
+			next = NextCasillaRescatador(st);
 		}
 		break;
 	}
-
-
 	case RUN:
 	{
 		// Primero calculamos la casilla intermedia (la que se salta)
@@ -414,16 +573,16 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const
 		EstadoR estado_final = NextCasillaRescatador(estado_intermedio);
 
 		// Verificamos solo si la segunda casilla (destino) es transitable
-		if (CasillaTransitableRescatadorRUN(mapaResultado[estado_intermedio.f][estado_intermedio.c], mapaResultado[estado_final.f][estado_final.c],
+		if (CasillaTransitableRescatadorRUN(mapaResultado[estado_intermedio.f][estado_intermedio.c], 
+											mapaResultado[estado_final.f][estado_final.c],
 											mapaCotas[st.f][st.c] - mapaCotas[estado_final.f][estado_final.c], tiene_zapatillas))
 		{
 			next = estado_final;
-			next.brujula = st.brujula;			// Mantenemos la orientación original
-			next.zapatillas = tiene_zapatillas; // Las zapatillas no cambian
+			next.brujula = st.brujula;			
+			next.zapatillas = tiene_zapatillas; 
 		}
 		break;
 	}
-
 	case TURN_SR:
 	{
 		next.brujula = (next.brujula + 1) % 8;
@@ -439,11 +598,8 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const
 	return next;
 }
 
-int ComportamientoRescatador::costeTerreno(
-	char terrenoDestino,
-	int cotaOrigen,
-	int cotaDestino,
-	Action accion)
+int ComportamientoRescatador::costeTerreno(char terrenoDestino,int cotaOrigen,
+										   int cotaDestino,Action accion)
 {
 	int coste = 0;
 	int coste_t, coste_a;
@@ -657,339 +813,11 @@ bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const Es
 	return false;
 }
 
-/////////////////////////////////////////////
 
-int VeoCasillaInteresanteR(char i, char c, char d, bool zap)
-{
 
-	if (c == 'X')
-		return 2;
-	else if (i == 'X')
-		return 1;
-	else if (d == 'X')
-		return 3;
-
-	else if (!zap)
-	{
-		if (c == 'D')
-			return 2;
-		else if (i == 'D')
-			return 1;
-		else if (d == 'D')
-			return 3;
-	}
-
-	else if (zap)
-	{
-		if (c == 'D')
-			return 2;
-		else if (i == 'D')
-			return 1;
-		else if (d == 'D')
-			return 3;
-	}
-
-	if (c == 'C')
-		return 2;
-	else if (i == 'C')
-		return 1;
-	else if (d == 'C')
-		return 3;
-
-	else
-		return 0;
-}
-
-int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int ti, int tc, int td)
-{
-	int minimo = 6000;
-	int salida = 0;
-
-	vector<int> valores(3, -1);
-
-	// Prioridad 1: Casillas no exploradas y que sean caminos
-	if (c == 'S' or c == 'C' or c == 'X' or c == 'D')
-	{
-		valores[0] = tc;
-		if (tc < minimo)
-		{
-			minimo = tc;
-			salida = 2;
-		}
-	}
-	if (i == 'S' or i == 'C' or i == 'X' or i == 'D')
-	{
-		valores[1] = ti;
-		if (ti < minimo)
-		{
-			minimo = ti;
-			salida = 1;
-		}
-	}
-	if (d == 'S' or d == 'C' or d == 'X' or d == 'D')
-	{
-		valores[2] = td;
-		if (td < minimo)
-		{
-			minimo = td;
-			salida = 3;
-		}
-	}
-	for (int i = 0; i < 3; i++)
-	{
-		cout << valores[i] << " ";
-	}
-	cout << " salida = " << salida << endl;
-	// Si no hay nada interesante
-	return salida;
-}
-
-char ViablePorAlturaR(char casilla, int dif, bool zap)
-{
-	if (abs(dif) <= 1 or (zap and abs(dif) <= 2))
-	{
-		return casilla;
-	}
-	else
-	{
-		return 'P';
-	}
-}
-
-void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores)
-{
-	m[sensores.posF][sensores.posC] = sensores.superficie[0];
-
-	int pos = 1;
-	switch (sensores.rumbo)
-	{
-	case norte:
-		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[1];
-		m[sensores.posF - 1][sensores.posC] = sensores.superficie[2];
-		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[3];
-
-		break;
-
-	case noreste:
-		m[sensores.posF - 1][sensores.posC] = sensores.superficie[1];
-		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[2];
-		m[sensores.posF][sensores.posC + 1] = sensores.superficie[3];
-
-		break;
-
-	case este:
-		m[sensores.posF - 1][sensores.posC + 1] = sensores.superficie[1];
-		m[sensores.posF][sensores.posC + 1] = sensores.superficie[2];
-		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[3];
-
-		break;
-
-	case sureste:
-		m[sensores.posF][sensores.posC + 1] = sensores.superficie[1];
-		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[2];
-		m[sensores.posF + 1][sensores.posC] = sensores.superficie[3];
-
-		break;
-
-	case sur:
-		m[sensores.posF + 1][sensores.posC + 1] = sensores.superficie[1];
-		m[sensores.posF + 1][sensores.posC] = sensores.superficie[2];
-		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[3];
-
-		break;
-
-	case suroeste:
-		m[sensores.posF + 1][sensores.posC] = sensores.superficie[1];
-		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[2];
-		m[sensores.posF][sensores.posC - 1] = sensores.superficie[3];
-
-		break;
-
-	case oeste:
-		m[sensores.posF + 1][sensores.posC - 1] = sensores.superficie[1];
-		m[sensores.posF][sensores.posC - 1] = sensores.superficie[2];
-		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[3];
-
-		break;
-
-	case noroeste:
-		m[sensores.posF][sensores.posC - 1] = sensores.superficie[1];
-		m[sensores.posF - 1][sensores.posC - 1] = sensores.superficie[2];
-		m[sensores.posF - 1][sensores.posC] = sensores.superficie[3];
-
-		break;
-	}
-}
-
-EstadoR ComportamientoRescatador::NextCasillaRescatador(const EstadoR &st)
-{
-	EstadoR siguiente = st;
-
-	switch (st.brujula)
-	{
-	case 0: // Norte
-		siguiente.f--;
-		break;
-	case 1: // Noreste
-		siguiente.f--;
-		siguiente.c++;
-		break;
-	case 2: // Este
-		siguiente.c++;
-		break;
-	case 3: // Sureste
-		siguiente.f++;
-		siguiente.c++;
-		break;
-	case 4: // Sur
-		siguiente.f++;
-		break;
-	case 5: // Suroeste
-		siguiente.f++;
-		siguiente.c--;
-		break;
-	case 6: // Oeste
-		siguiente.c--;
-		break;
-	case 7: // Noroeste
-		siguiente.f--;
-		siguiente.c--;
-		break;
-	}
-
-	return siguiente;
-}
-
-/*
-EstadoR applyR(Action accion, const EstadoR &st,
-	const vector<vector<unsigned char>> &terreno,
-	const vector<vector<unsigned char>> &altura) {
-EstadoR next = st;
-
-switch(accion) {
-case WALK:
-case RUN:
-  if (ComportamientoRescatador::CasillaTransitableRescatador(st, terreno, altura)) {
-	  next = ComportamientoRescatador::NextCasillaRescatador(st);
-  }
-  break;
-
-case TURN_SR:
-  next.brujula = (next.brujula + 1) % 8;
-  break;
-
-case TURN_L:
-  next.brujula = (next.brujula + 7) % 8; // Equivalente a -1 mod 8
-  break;
-}
-
-return next;
-}
-
-
-int calcularCoste(Action accion, const EstadoR &origen, const EstadoR &destino,
-	const vector<vector<unsigned char>> &terreno,
-	const vector<vector<unsigned char>> &altura) {
-int coste = 0;
-int dif_altura = abs(altura[destino.f][destino.c] - altura[origen.f][origen.c]);
-
-switch (accion) {
-case WALK:
-coste = 10;
-if (terreno[destino.f][destino.c] == 'B') coste += 5;
-
-if (dif_altura > 1 && !origen.zapatillas) return INT_MAX; // No transitable
-coste += dif_altura;
-break;
-
-case RUN:
-coste = 50;
-if (terreno[destino.f][destino.c] == 'B') coste += 10;
-if (dif_altura > 1 && !origen.zapatillas) return INT_MAX; // No transitable
-coste += dif_altura * 2;
-break;
-
-case TURN_SR:
-case TURN_L:
-coste = 2;
-break;
-
-default:
-coste = 0;
-}
-
-return coste;
-}
-
-*/
-
-void ComportamientoRescatador::AnularMatrizR(vector<vector<unsigned char>> &m)
-{
-	for (auto &fila : m)
-	{
-		fill(fila.begin(), fila.end(), 0);
-	}
-}
-
-pair<int, int> Funcion_delante(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores)
-{
-	pair<int, int> salida;
-
-	switch (sensores.rumbo)
-	{
-	case norte:
-		return make_pair(sensores.posF - 1, sensores.posC);
-
-		break;
-
-	case noreste:
-
-		return make_pair(sensores.posF - 1, sensores.posC + 1);
-
-		break;
-
-	case este:
-
-		return make_pair(sensores.posF, sensores.posC + 1);
-
-		break;
-
-	case sureste:
-
-		return make_pair(sensores.posF + 1, sensores.posC + 1);
-
-		break;
-
-	case sur:
-
-		return make_pair(sensores.posF + 1, sensores.posC);
-
-		break;
-
-	case suroeste:
-
-		return make_pair(sensores.posF + 1, sensores.posC - 1);
-
-		break;
-
-	case oeste:
-
-		return make_pair(sensores.posF, sensores.posC - 1);
-
-		break;
-
-	case noroeste:
-
-		return make_pair(sensores.posF - 1, sensores.posC - 1);
-
-		break;
-	}
-}
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
-	// HOLA
-
 	Action accion;
 
 	if (sensores.superficie[0] == 'D')
@@ -1121,14 +949,12 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 			break;
 		}
 	}
-
 	last_action = accion;
 	return accion;
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
 {
-
 	Action accion = IDLE;
 
 	if (sensores.superficie[0] == 'D')
@@ -1159,7 +985,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensor
 		estadoActual.f = sensores.posF;
 		estadoActual.c = sensores.posC;
 		estadoActual.brujula = sensores.rumbo;
-		estadoActual.zapatillas = tiene_zapatillas; // Usamos la variable miembro que lleva el estado de las zapatillas del agente
+		estadoActual.zapatillas = tiene_zapatillas; 
 
 		VisualizaPlan(estadoActual, plan);
 	}
