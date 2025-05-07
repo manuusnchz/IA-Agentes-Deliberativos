@@ -386,15 +386,21 @@ case RUN:
 {
     // Primero calculamos la casilla intermedia (la que se salta)
     EstadoR estado_intermedio = NextCasillaRescatador(st);
-	//i = mapaResultado[estado_intermedio.f][estado_final.c];
-	//f = 
-    
+	
+	// Creamos una copia del valor actual de zapatillas
+    bool tiene_zapatillas = st.zapatillas;
+
+	// Si la casilla intermedia contiene una 'D', activamos las zapatillas
+    if (mapaResultado[estado_intermedio.f][estado_intermedio.c] == 'D') {
+    	tiene_zapatillas = true;
+    }
+
     // Luego calculamos la siguiente casilla (la de destino)
     EstadoR estado_final = NextCasillaRescatador(estado_intermedio);
     
     // Verificamos solo si la segunda casilla (destino) es transitable
     if (CasillaTransitableRescatadorRUN(mapaResultado[estado_intermedio.f][estado_intermedio.c],mapaResultado[estado_final.f][estado_final.c],
-	mapaCotas[st.f][st.c]-mapaCotas[estado_final.f][estado_final.c],st.zapatillas)) {
+	mapaCotas[st.f][st.c]-mapaCotas[estado_final.f][estado_final.c],tiene_zapatillas)) {
         next = estado_final;
         next.brujula = st.brujula;  // Mantenemos la orientación original
         next.zapatillas = st.zapatillas;  // Las zapatillas no cambian
@@ -639,10 +645,12 @@ int ComportamientoRescatador::costeTerreno(
 	}
 
 	if(cotaDestino-cotaOrigen > 0){
-		coste_t += coste_a*(cotaDestino-cotaOrigen);
+		int dif1 = cotaDestino-cotaOrigen;
+		coste_t += dif1;
 	}
-	else if(cotaDestino-cotaOrigen < 0){
-		coste_t += coste_a*(-(cotaDestino-cotaOrigen));
+	else if(cotaOrigen - cotaDestino > 0){
+		int dif2 = cotaOrigen-cotaDestino;
+		coste_t -= dif2;
 	}
 
 
