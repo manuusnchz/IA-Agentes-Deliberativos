@@ -544,12 +544,12 @@ int ComportamientoRescatador::costeTerreno(
 
 	if (diferencia > 0)
 	{
-		coste_t += coste_a*diferencia;
+		coste_t += coste_a;
 	}
 	else if (diferencia < 0)
 	{
 		
-		coste_t -= coste_a*(-diferencia);
+		coste_t -= coste_a;
 	}
 	if(coste_t < 1) coste_t = 1;
 
