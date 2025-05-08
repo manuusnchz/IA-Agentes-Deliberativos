@@ -195,16 +195,23 @@ char ViablePorAlturaA(char casilla, int dif)
 
 ////////////////////////////////////////////////////
 
-int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion)
+int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion,bool zapas)
 {
 	int coste = 0;
 	int coste_t, coste_a;
 	int diferencia  = cotaDestino-cotaOrigen;
 
+	if (!tiene_zapatillas && terrenoDestino == 'B') {
+        return 9999;  // Valor muy alto para indicar que no se puede pasar
+    }
+
+	// Si lleva zapatillas y el terreno es 'B', lo tratamos como 'C'
+    char terrenoEvaluado = (zapas && terrenoDestino == 'B') ? 'C' : terrenoDestino;
+
 	switch (accion)
 	{
 	case WALK:
-		switch (terrenoDestino)
+		switch (terrenoEvaluado)
 		{
 		case 'A':
 			coste_t = 100;
@@ -218,13 +225,6 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 		case 'S':
 			coste_t = 2;
 			coste_a = 1;
-			break;
-
-		case 'B':
-			if(tiene_zapatillas){
-				coste_t = 2;
-				coste_a = 1;
-			}
 			break;
 
 		default:
@@ -257,11 +257,11 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, in
 	
 	}
 
-	if (diferencia > 0)
+	if (diferencia == 1)
 	{
 		coste_t += coste_a;
 	}
-	else if (diferencia < 0)
+	else if (diferencia == -1)
 	{
 		
 		coste_t -= coste_a;
@@ -341,16 +341,19 @@ EstadoA ComportamientoAuxiliar::NextCasillaAuxiliar(const EstadoA &st)
 	return siguiente;
 }
 
+
+
 bool ComportamientoAuxiliar::CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura)
 {
 	EstadoA next = NextCasillaAuxiliar(st);
 	bool check1 = false, check2 = false, check3 = false;
 	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M';
-	check2 = terreno[next.f][next.c] != 'B' or (terreno[next.f][next.c] == 'B' and st.zapatillas);
-	check3 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1;
+	check2 = (terreno[next.f][next.c] != 'B') or (st.zapatillas);
+	check3 = (abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1) ;
 	return check1 and check2 and check3;
 }
+
 
 
 void ComportamientoAuxiliar::AnularMatrizA(vector<vector<unsigned char>> &m)
@@ -600,6 +603,7 @@ list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(
 			cout <<"Se le ponen las zpatillas" << endl;
         }
 
+
         // Probar acciones: WALK + GIROS
         for (Action a : {TURN_SR,WALK}) {
             EstadoA sig = applyA(a, actual.estado, terreno, altura);
@@ -618,7 +622,7 @@ list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(
                 terreno[actual.estado.f][actual.estado.c], 
                 altura[actual.estado.f][actual.estado.c],
                 altura[sig.f][sig.c],
-                a
+                a,tieneZapatillasAhora
             );
 
 

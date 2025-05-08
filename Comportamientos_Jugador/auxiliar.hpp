@@ -103,7 +103,7 @@ public:
   void AnularMatrizA(vector<vector<unsigned char>> &m);
   bool Find(const NodoA &st, const list<NodoA> &lista);
   void PintaPlan(const list<Action> &plan, bool zap);
-  int costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion);
+  int costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion,bool zapas);
 
   EstadoA applyA(Action accion, const EstadoA &st, const vector<vector<unsigned char>> &terreno,
     const vector<vector<unsigned char>> &altura);
