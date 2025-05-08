@@ -91,19 +91,23 @@ public:
       const EstadoA &destino,
       const vector<vector<unsigned char>> &terreno,
       const vector<vector<unsigned char>> &altura) ;
+      
   
   Action think(Sensores sensores);
-  int Heuristica(const EstadoA &actual, const EstadoA &objetivo);
 
- bool CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+
+ bool CasillaTransitableAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
     const vector<vector<unsigned char>> &altura);
 
-  bool AlgoritmoAEstrella(const EstadoA &origen, const EstadoA &destino, list<Action> &plan);
+    int Heuristica(const EstadoA &origen, const EstadoA &destino);
+ 
 
   void AnularMatrizA(vector<vector<unsigned char>> &m);
   bool Find(const NodoA &st, const list<NodoA> &lista);
+
+
   void PintaPlan(const list<Action> &plan, bool zap);
-  int costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion,bool zapas);
+  int costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion);
 
   EstadoA applyA(Action accion, const EstadoA &st, const vector<vector<unsigned char>> &terreno,
     const vector<vector<unsigned char>> &altura);

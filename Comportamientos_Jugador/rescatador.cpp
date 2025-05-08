@@ -705,7 +705,7 @@ int ComportamientoRescatador::costeTerreno(char terrenoDestino,int cotaOrigen,
 	else if (diferencia < 0)
 	{
 		
-		coste_t -= coste_a;
+		coste_t -= coste_a;/**/
 	}
 	if(coste_t < 1) coste_t = 1;
 
