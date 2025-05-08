@@ -484,7 +484,7 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen,int
 
 int ComportamientoAuxiliar::Heuristica(const EstadoA &origen, const EstadoA &destino)
 {
-	int dist = abs(origen.f - destino.f) + abs(origen.c - destino.c); // Manhattan
+	int dist = max(abs(origen.f - destino.f) , abs(origen.c - destino.c)); // Manhattan
 	return dist;
 }
 
