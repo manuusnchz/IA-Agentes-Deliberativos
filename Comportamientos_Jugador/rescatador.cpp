@@ -21,7 +21,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_2(sensores);
 		break;
 	case 3:
-		// accion = ComportamientoRescatadorNivel_3 (sensores);
+		accion = ComportamientoRescatadorNivel_3 (sensores);
 		break;
 	case 4:
 		// accion = ComportamientoRescatadorNivel_4 (sensores);
@@ -812,8 +812,6 @@ bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const Es
 
 	return false;
 }
-
-
 
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
