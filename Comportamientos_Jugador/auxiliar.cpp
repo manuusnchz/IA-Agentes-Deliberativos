@@ -27,7 +27,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 
 		break;
 	case 4:
-		// accion = ComportamientoAuxiliarNivel_4 (sensores);
+		accion = ComportamientoAuxiliarNivel_4 (sensores);
 		break;
 	}
 
@@ -772,4 +772,56 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
 {
+	Action accion = IDLE;
+
+    // Verificar si recibimos la llamada (venpaca)
+    if (sensores.venpaca) {
+        cout << "El auxiliar ha recibido la llamada\n";
+		recibi_llamada = true;
+        // (Aquí iría la lógica para "recibir" las coordenadas del Rescatador)
+        destinoF_accidente = sensores.destinoF;
+        destinoC_accidente = sensores.destinoC;
+		cout << "Las cordenadas de destino pasadas al uxiliar son : " << destinoF_accidente <<", "<< destinoC_accidente << endl;
+        hayPlan = false; // Asegurarse de que se recalcule el plan
+    }
+
+    if (recibi_llamada) {
+        // Si no estamos en la posición del accidentado
+        if (!en_posicion_accidentado) {
+            // Planificar ruta al accidentado (si no tenemos un plan)
+            if (!hayPlan) {
+                origen.f = sensores.posF;
+                origen.c = sensores.posC;
+                origen.brujula = sensores.rumbo;
+                origen.zapatillas = tiene_zapatillas;
+
+                destino.f = destinoF_accidente;
+                destino.c = destinoC_accidente;
+                destino.brujula = 0; // No importa la orientación al llegar
+                destino.zapatillas = false;
+
+                plan = AlgoritmoAEstrella(origen, destino, mapaResultado, mapaCotas);
+                hayPlan = !plan.empty(); // Actualizar hayPlan según el resultado de AlgoritmoAEstrella
+            }
+
+            // Si tenemos un plan y no está vacío, seguirlo
+            if (hayPlan && !plan.empty()) {
+                accion = plan.front();
+                plan.pop_front();
+            }
+
+            // Si llegamos al accidentado
+            if (sensores.posF == destinoF_accidente && sensores.posC == destinoC_accidente) {
+                en_posicion_accidentado = true;
+                hayPlan = false; // Resetear el plan
+                plan.clear();  // Limpiar el plan
+            }
+        } else {
+            // Ya estamos en la posición del accidentado
+            // No necesitamos hacer nada más (por ahora)
+            accion = IDLE;
+        }
+    }
+
+    return accion;
 }

@@ -24,7 +24,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_3 (sensores);
 		break;
 	case 4:
-		// accion = ComportamientoRescatadorNivel_4 (sensores);
+		accion = ComportamientoRescatadorNivel_4 (sensores);
 		break;
 	}
 
@@ -302,6 +302,7 @@ bool ComportamientoRescatador::CasillaTransitableRescatador(const EstadoR &st,
 	{
 		return false;
 	}
+
 
 	// Comprobar obstáculos
 	if (terreno[next.f][next.c] == 'P' || terreno[next.f][next.c] == 'M' || terreno[next.f][next.c] == 'B')
@@ -1055,4 +1056,111 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores)
 {
+	Action accion = IDLE;
+
+	cout<<"HOLA PRUEBA 1\n";
+
+    // Si es la primera vez en el nivel 4, o si hemos terminado una misión
+    if (!en_posicion_accidentado) {
+        cout <<"HOLA PRUEBA 2\n";
+		
+		// Actualizar destino del accidentado
+        destinoF_accidente = sensores.destinoF;
+        destinoC_accidente = sensores.destinoC;
+
+        // Planificar ruta al accidentado
+        if (!hayPlan) {
+			cout <<"PRUEBA 3 NO HAY PLAN CREAMOS 1\n";
+            origen.f = sensores.posF;
+            origen.c = sensores.posC;
+            origen.brujula = sensores.rumbo;
+            origen.zapatillas = tiene_zapatillas;
+
+            destino.f = destinoF_accidente;
+            destino.c = destinoC_accidente;
+            destino.brujula = 0; // No importa la orientación al llegar
+            destino.zapatillas = false;
+			cout << "Comenzamos a crear un plan nuevo\n";
+            hayPlan = AlgoritmoDkjistra(origen, destino, plan); // Usar A* si lo tienes
+        }
+
+		if (hayPlan)
+	{
+		cout << "PRUEBA 4 SI HAY ACTUALIZAMOS VARIABLES\n";
+		EstadoR estadoActual;
+		estadoActual.f = sensores.posF;
+		estadoActual.c = sensores.posC;
+		estadoActual.brujula = sensores.rumbo;
+		estadoActual.zapatillas = tiene_zapatillas; 
+
+		VisualizaPlan(estadoActual, plan);
+	}
+
+        // Si tenemos un plan, seguirlo
+        if (hayPlan && !plan.empty()) {
+			cout << "PRUEBA 5 SI HAY PLAN LO SEGUIMOS\n";
+            accion = plan.front();
+            plan.pop_front();
+
+			cout << "Coordenadas actualies : " << sensores.posF << "," << sensores.posC << "  Coordenadas destino: " << destino.f << ',' << destino.c << endl;
+        }
+
+        // Si llegamos al accidentado
+        if (sensores.posF == destino.f && sensores.posC == destino.c) {
+            cout << "PRUEBA 6 Hemos llegado al accidentado\n";
+			en_posicion_accidentado = true;
+            hayPlan = false; // Resetear el plan
+			plan.clear();
+        }
+    } 
+	else {
+		cout << "HE ENTRADO EN EL ELSE\n";
+        // Ya estamos en la posición del accidentado
+        if (!sensores.gravedad) {
+            cout << "PRUEBA 7 Como el accidentado no es grave debemos crear un plan nuevo\n";
+			cout << "PRUEBA 8 : VALOR DE hayPlan antes de terminar la comprobacion: " << hayPlan << endl;
+			// No es grave, terminar misión
+            puntuacion += 2;
+            // Obtener nueva misión
+  
+
+			hayPlan = false;
+
+			plan.clear();
+
+			// **Asegurar la actualización del destino aquí también**
+            destinoF_accidente = sensores.destinoF;
+            destinoC_accidente = sensores.destinoC;
+			en_posicion_accidentado = false;
+
+			cout << "PRUEBA 9 : VALOR DE hayPlan despues de terminar la comprobacion: " << hayPlan << endl;
+        } else {
+            // Es grave
+            if (!llamada_auxiliar_hecha) {
+                accion = CALL_ON;
+                llamada_auxiliar_hecha = true;
+                // (Aquí iría la lógica para "enviar" las coordenadas al Auxiliar,
+                //  pero en este entorno, podría ser a través de una variable compartida
+                //  o un mecanismo similar)
+            } else {
+                // Esperar al Auxiliar y verificar si está en línea de visión
+                auxiliar_en_vision = false; 
+                for (int i = 0; i < 16; ++i) {
+                    if (sensores.agentes[i] == 'a') {
+                        auxiliar_en_vision = true;
+                        break;
+                    }
+                }
+                if (auxiliar_en_vision) {
+                    puntuacion += 7;
+                    en_posicion_accidentado = false;
+                    llamada_auxiliar_hecha = false;
+                } else {
+                    accion = IDLE; // Esperar
+                }
+            }
+        }
+    }
+
+    return accion;
 }

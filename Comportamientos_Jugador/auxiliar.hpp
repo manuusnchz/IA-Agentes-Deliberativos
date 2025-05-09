@@ -84,6 +84,12 @@ public:
         matrizAux[i][j] = 1;
       }
     }
+
+    // Inicializar variables Nivel 4
+    recibi_llamada = false;
+    en_posicion_accidentado = false;
+    destinoF_accidente = -1;
+    destinoC_accidente = -1;
   }
   
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR, mapaC)
@@ -146,6 +152,12 @@ private:
   // Variables para nivel 2 y 3
   list<Action> plan;
   bool hayPlan;
+
+  // Nuevas variables para el Nivel 4
+  bool recibi_llamada;
+  bool en_posicion_accidentado;
+  int destinoF_accidente;
+  int destinoC_accidente;
 };
 
 #endif

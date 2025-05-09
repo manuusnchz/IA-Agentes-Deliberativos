@@ -119,6 +119,15 @@ public:
       }
     }
     instante = 0;
+
+    // Inicializar variables Nivel 4
+    en_posicion_accidentado = false;
+    llamada_auxiliar_hecha = false;
+    auxiliar_en_vision = false;
+    destinoF_accidente = -1;
+    destinoC_accidente = -1;
+
+    puntuacion = 0;
   }
   
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR, mapaC)
@@ -158,7 +167,15 @@ private:
   list<Action> plan;
   bool hayPlan;
   EstadoR origen, destino;
+
+  // Nuevas variables para el Nivel 4
+  bool en_posicion_accidentado;
+  bool llamada_auxiliar_hecha;
+  bool auxiliar_en_vision;
+  int destinoF_accidente;
+  int destinoC_accidente;
   
+  int puntuacion;
 };
 
 #endif
