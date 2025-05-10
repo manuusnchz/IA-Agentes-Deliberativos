@@ -890,7 +890,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 	Action accion;
 	instante++;
-	matrizTempR[sensores.posF][sensores.posC] = instante;
+	matrizTempR[sensores.posF][sensores.posC] ++;
 
 	if (sensores.superficie[0] == 'D')
 		tiene_zapatillas = true;
