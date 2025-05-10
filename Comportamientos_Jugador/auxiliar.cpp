@@ -106,31 +106,13 @@ int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc, char mi, 
 		return 3;
 
 	// Prioridad 2: Víctimas ('X')
-	if (c == 'X')
+	if (c == 'X' || c == 'D' || c == 'C' || c == 'S' || (zap && c == 'B') )
 		return 2;
-	if (i == 'X')
+	if (i == 'X' || i == 'D' || i == 'C' || i == 'S' || (zap && i == 'B'))
 		return 1;
-	if (d == 'X')
+	if (d == 'X' || d == 'D' || d == 'C' || d == 'S' || (zap && d == 'B'))
 		return 3;
 
-	// Prioridad 3: Zapatillas ('D') si no las tenemos
-	if (!zap)
-	{
-		if (c == 'D')
-			return 2;
-		if (i == 'D')
-			return 1;
-		if (d == 'D')
-			return 3;
-	}
-
-	// Prioridad 4: Caminos ('C') y senderos ('S')
-	if (c == 'C' || c == 'S' || (zap && c == 'B'))
-		return 2;
-	if (i == 'C' || i == 'S' || (zap && i == 'B'))
-		return 1;
-	if (d == 'C' || d == 'S' || (zap && d == 'B'))
-		return 3;
 
 	// Si no hay nada interesante
 	return 0;
