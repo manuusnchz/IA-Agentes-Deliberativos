@@ -21,10 +21,10 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_2(sensores);
 		break;
 	case 3:
-		accion = ComportamientoRescatadorNivel_3 (sensores);
+		accion = ComportamientoRescatadorNivel_3(sensores);
 		break;
 	case 4:
-		accion = ComportamientoRescatadorNivel_4 (sensores);
+		accion = ComportamientoRescatadorNivel_4(sensores);
 		break;
 	}
 
@@ -35,7 +35,6 @@ int ComportamientoRescatador::interact(Action accion, int valor)
 {
 	return 0;
 }
-
 
 /*FUNCIONES COMUNES NIVEL 0 Y 1*/
 char ViablePorAlturaR(char casilla, int dif, bool zap)
@@ -108,39 +107,43 @@ void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigne
 }
 
 /*FUNCIONES NIVEL 0*/
-int VeoCasillaInteresanteR(char i, char c, char d, bool zap,int ti , int tc, int td)
+int VeoCasillaInteresanteR(char i, char c, char d, bool zap, int ti, int tc, int td)
 {
 	int minimo = 6000;
 	int salida = 0;
 
 	vector<int> valores(3, -1);
 
-	
-	//Prioridad 1 : X
+	// Prioridad 1 : X
 
-	if(c == 'X'){
+	if (c == 'X')
+	{
 		return 2;
 	}
-	if(i == 'X'){
+	if (i == 'X')
+	{
 		return 1;
 	}
-	if(d == 'X'){
+	if (d == 'X')
+	{
 		return 3;
 	}
-	
-	//Prioridad 2 : Zapatillas si no las tiene
 
-	if(c == 'D' && !zap){
+	// Prioridad 2 : Zapatillas si no las tiene
+
+	if (c == 'D' && !zap)
+	{
 		return 2;
 	}
-	if(i == 'D' && !zap){
+	if (i == 'D' && !zap)
+	{
 		return 1;
 	}
-	if(d == 'D' && !zap){
+	if (d == 'D' && !zap)
+	{
 		return 3;
 	}
-	
-	
+
 	// Prioridad 3: Casillas menos exploradas y que sean caminos o zapatillas
 	if (c == 'C' or c == 'D')
 	{
@@ -151,7 +154,7 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap,int ti , int tc, int
 			salida = 2;
 		}
 	}
-	if (i == 'C' or  i == 'D')
+	if (i == 'C' or i == 'D')
 	{
 		valores[1] = ti;
 		if (ti < minimo)
@@ -169,7 +172,7 @@ int VeoCasillaInteresanteR(char i, char c, char d, bool zap,int ti , int tc, int
 			salida = 3;
 		}
 	}
-	
+
 	return salida;
 }
 
@@ -181,14 +184,16 @@ int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int ti, int tc, in
 
 	vector<int> valores(3, -1);
 
-
-	if(c == 'D' && !zap){
+	if (c == 'D' && !zap)
+	{
 		return 2;
 	}
-	if(i == 'D' && !zap){
+	if (i == 'D' && !zap)
+	{
 		return 1;
 	}
-	if(d == 'D' && !zap){
+	if (d == 'D' && !zap)
+	{
 		return 3;
 	}
 
@@ -220,7 +225,7 @@ int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int ti, int tc, in
 			salida = 3;
 		}
 	}
-	
+
 	return salida;
 }
 
@@ -303,7 +308,6 @@ bool ComportamientoRescatador::CasillaTransitableRescatador(const EstadoR &st,
 		return false;
 	}
 
-
 	// Comprobar obstáculos
 	if (terreno[next.f][next.c] == 'P' || terreno[next.f][next.c] == 'M' || terreno[next.f][next.c] == 'B')
 	{
@@ -376,13 +380,13 @@ void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Actio
 			if (estado_intermedio.f >= 0 && estado_intermedio.f < mapaConPlan.size() &&
 				estado_intermedio.c >= 0 && estado_intermedio.c < mapaConPlan[0].size())
 			{
-				// Marca el paso intermedio 
-				mapaConPlan[estado_intermedio.f][estado_intermedio.c] = 3; 
+				// Marca el paso intermedio
+				mapaConPlan[estado_intermedio.f][estado_intermedio.c] = 3;
 			}
 
 			// Simular el segundo paso de RUN desde el estado intermedio
 			EstadoR estado_final = estado_intermedio;
-			
+
 			// La brújula no cambia durante RUN, por lo que usamos la del estado intermedio/original
 			switch (estado_final.brujula)
 			{
@@ -421,13 +425,13 @@ void ComportamientoRescatador::VisualizaPlan(const EstadoR &st, const list<Actio
 				estado_final.c >= 0 && estado_final.c < mapaConPlan[0].size())
 			{
 				// Marca el paso final
-				mapaConPlan[estado_final.f][estado_final.c] = 3; 
+				mapaConPlan[estado_final.f][estado_final.c] = 3;
 			}
 
 			// Actualizar el estado temporal de visualización a la posición final
-			
+
 			cst = estado_final;
-			
+
 			// La brújula y las zapatillas no cambian con RUN, se mantienen las del estado original cst.
 
 			break;
@@ -607,13 +611,13 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const
 		EstadoR estado_final = NextCasillaRescatador(estado_intermedio);
 
 		// Verificamos solo si la segunda casilla (destino) es transitable
-		if (CasillaTransitableRescatadorRUN(mapaResultado[estado_intermedio.f][estado_intermedio.c], 
+		if (CasillaTransitableRescatadorRUN(mapaResultado[estado_intermedio.f][estado_intermedio.c],
 											mapaResultado[estado_final.f][estado_final.c],
 											mapaCotas[st.f][st.c] - mapaCotas[estado_final.f][estado_final.c], tiene_zapatillas))
 		{
 			next = estado_final;
-			next.brujula = st.brujula;			
-			next.zapatillas = tiene_zapatillas; 
+			next.brujula = st.brujula;
+			next.zapatillas = tiene_zapatillas;
 		}
 		break;
 	}
@@ -632,12 +636,12 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR &st, const
 	return next;
 }
 
-int ComportamientoRescatador::costeTerreno(char terrenoDestino,int cotaOrigen,
-										   int cotaDestino,Action accion)
+int ComportamientoRescatador::costeTerreno(char terrenoDestino, int cotaOrigen,
+										   int cotaDestino, Action accion)
 {
 	int coste = 0;
 	int coste_t, coste_a;
-	int diferencia  = cotaDestino-cotaOrigen;
+	int diferencia = cotaDestino - cotaOrigen;
 
 	switch (accion)
 	{
@@ -728,8 +732,6 @@ int ComportamientoRescatador::costeTerreno(char terrenoDestino,int cotaOrigen,
 			break;
 		}
 		break;
-
-	
 	}
 
 	if (diferencia > 0)
@@ -738,10 +740,11 @@ int ComportamientoRescatador::costeTerreno(char terrenoDestino,int cotaOrigen,
 	}
 	else if (diferencia < 0)
 	{
-		
-		coste_t -= coste_a;/**/
+
+		coste_t -= coste_a; 
 	}
-	if(coste_t < 1) coste_t = 1;
+	if (coste_t < 1)
+		coste_t = 1;
 
 	return coste_t;
 }
@@ -766,14 +769,10 @@ bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const Es
 		currentNodo = frontera.top();
 		frontera.pop();
 
-		
-		
 		if (mapaResultado[currentNodo.estado.f][currentNodo.estado.c] == 'D')
 		{
 			currentNodo.estado.zapatillas = true;
 		}
-
-
 
 		if (visitados.count(currentNodo.estado))
 			continue;
@@ -785,7 +784,7 @@ bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const Es
 			return true;
 		}
 
-		// ===== Generar sucesores =====
+		//  Generar sucesores 
 
 		// WALK
 		NodoR walkNode = currentNodo;
@@ -847,22 +846,24 @@ bool ComportamientoRescatador::AlgoritmoDkjistra(const EstadoR &origen, const Es
 	return false;
 }
 
-
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
 	Action accion;
 
-	if(last_action == WALK){
-		matrizTempR[sensores.posF][sensores.posC] ++;
+	if (last_action == WALK)
+	{
+		matrizTempR[sensores.posF][sensores.posC]++;
 	}
-	if(sensores.superficie[0] == 'X'){
+	if (sensores.superficie[0] == 'X')
+	{
 		return IDLE;
 	}
 
 	if (sensores.superficie[0] == 'D')
 		tiene_zapatillas = true;
 
-	if(matrizTempR[sensores.posF][sensores.posC] > 5){
+	if (matrizTempR[sensores.posF][sensores.posC] > 5)
+	{
 		giro45Izq = (rand() % 6);
 		accion = TURN_L;
 	}
@@ -892,8 +893,6 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		{
 			return TURN_L;
 		}
-
-		
 
 		pair<int, int> posicion = Funcion_delante(mapaResultado, mapaCotas, sensores);
 
@@ -935,9 +934,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 	Action accion;
 	instante++;
-	
-	if(last_action == WALK){
-		matrizTempR[sensores.posF][sensores.posC] ++;
+
+	if (last_action == WALK)
+	{
+		matrizTempR[sensores.posF][sensores.posC]++;
 	}
 
 	if (sensores.superficie[0] == 'D')
@@ -945,7 +945,6 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores);
 
-	
 	if (giro45Izq != 0)
 	{
 		accion = TURN_SR;
@@ -1032,7 +1031,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensor
 		estadoActual.f = sensores.posF;
 		estadoActual.c = sensores.posC;
 		estadoActual.brujula = sensores.rumbo;
-		estadoActual.zapatillas = tiene_zapatillas; 
+		estadoActual.zapatillas = tiene_zapatillas;
 
 		VisualizaPlan(estadoActual, plan);
 	}
@@ -1056,88 +1055,5 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensor
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores)
 {
-	Action accion = IDLE;
-
-    // Si es la primera vez en el nivel 4, o si hemos terminado una misión
-    if (!en_posicion_accidentado) {
-        // Actualizar destino del accidentado
-        destinoF_accidente = sensores.destinoF;
-        destinoC_accidente = sensores.destinoC;
-
-        // Planificar ruta al accidentado
-        if (!hayPlan) {
-            origen.f = sensores.posF;
-            origen.c = sensores.posC;
-            origen.brujula = sensores.rumbo;
-            origen.zapatillas = tiene_zapatillas;
-
-            destino.f = destinoF_accidente;
-            destino.c = destinoC_accidente;
-            destino.brujula = 0; // No importa la orientación al llegar
-            destino.zapatillas = false;
-
-            hayPlan = AlgoritmoDkjistra(origen, destino, plan); // Usar A* si lo tienes
-        }
-
-		if (hayPlan)
-	{
-		EstadoR estadoActual;
-		estadoActual.f = sensores.posF;
-		estadoActual.c = sensores.posC;
-		estadoActual.brujula = sensores.rumbo;
-		estadoActual.zapatillas = tiene_zapatillas; 
-
-		VisualizaPlan(estadoActual, plan);
-	}
-
-        // Si tenemos un plan, seguirlo
-        if (hayPlan && !plan.empty()) {
-            accion = plan.front();
-            plan.pop_front();
-        }
-
-        // Si llegamos al accidentado
-        if (sensores.posF == destinoF_accidente && sensores.posC == destinoC_accidente) {
-            en_posicion_accidentado = true;
-            hayPlan = false; // Resetear el plan
-        }
-    } 
-	else {
-        // Ya estamos en la posición del accidentado
-        if (!sensores.gravedad) {
-            // No es grave, terminar misión
-            puntuacion += 2;
-            // Obtener nueva misión
-            en_posicion_accidentado = false;
-
-			hayPlan = false;
-        } else {
-            // Es grave
-            if (!llamada_auxiliar_hecha) {
-                accion = CALL_ON;
-                llamada_auxiliar_hecha = true;
-                // (Aquí iría la lógica para "enviar" las coordenadas al Auxiliar,
-                //  pero en este entorno, podría ser a través de una variable compartida
-                //  o un mecanismo similar)
-            } else {
-                // Esperar al Auxiliar y verificar si está en línea de visión
-                auxiliar_en_vision = false; 
-                for (int i = 0; i < 16; ++i) {
-                    if (sensores.agentes[i] == 'a') {
-                        auxiliar_en_vision = true;
-                        break;
-                    }
-                }
-                if (auxiliar_en_vision) {
-                    puntuacion += 7;
-                    en_posicion_accidentado = false;
-                    llamada_auxiliar_hecha = false;
-                } else {
-                    accion = IDLE; // Esperar
-                }
-            }
-        }
-    }
-
-    return accion;
+	
 }

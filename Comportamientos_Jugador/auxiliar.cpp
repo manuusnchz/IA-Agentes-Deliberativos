@@ -27,7 +27,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 
 		break;
 	case 4:
-		accion = ComportamientoAuxiliarNivel_4 (sensores);
+		//accion = ComportamientoAuxiliarNivel_4(sensores);
 		break;
 	}
 
@@ -106,13 +106,12 @@ int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, char mc, char mi, 
 		return 3;
 
 	// Prioridad 2: Víctimas ('X')
-	if (c == 'X' || c == 'D' || c == 'C' || c == 'S' || (zap && c == 'B') )
+	if (c == 'X' || c == 'D' || c == 'C' || c == 'S' || (zap && c == 'B'))
 		return 2;
 	if (i == 'X' || i == 'D' || i == 'C' || i == 'S' || (zap && i == 'B'))
 		return 1;
 	if (d == 'X' || d == 'D' || d == 'C' || d == 'S' || (zap && d == 'B'))
 		return 3;
-
 
 	// Si no hay nada interesante
 	return 0;
@@ -206,7 +205,7 @@ bool ComportamientoAuxiliar::CasillaTransitableAuxiliar(const EstadoA &st, const
 		return false;
 	}
 
-	//Comprobar que no pase una B sin zapatillas
+	// Comprobar que no pase una B sin zapatillas
 	if (terreno[next.f][next.c] == 'B' && !st.zapatillas)
 	{
 		return false;
@@ -396,7 +395,7 @@ EstadoA ComportamientoAuxiliar::applyA(Action accion, const EstadoA &st, const v
 	return next;
 }
 
-int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen,int cotaDestino, Action accion)
+int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen, int cotaDestino, Action accion)
 {
 	int coste = 0;
 	int coste_t, coste_a;
@@ -466,12 +465,12 @@ int ComportamientoAuxiliar::costeTerreno(char terrenoDestino, int cotaOrigen,int
 
 int ComportamientoAuxiliar::Heuristica(const EstadoA &origen, const EstadoA &destino)
 {
-	int dist = max(abs(origen.f - destino.f) , abs(origen.c - destino.c)); // Manhattan
+	int dist = max(abs(origen.f - destino.f), abs(origen.c - destino.c)); // Manhattan
 	return dist;
 }
 
-list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &origen,const EstadoA &destino,
-														const vector<vector<unsigned char>> &terreno,const vector<vector<unsigned char>> &altura)
+list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &origen, const EstadoA &destino,
+														const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura)
 {
 	struct Nodo
 	{
@@ -548,17 +547,6 @@ list<Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &origen,co
 	return {}; // No se encontró camino
 }
 
-
-
-
-
-
-
-
-
-
-
-////////////////////////////////////////////////////
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 {
@@ -772,56 +760,5 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
 {
-	Action accion = IDLE;
-
-    // Verificar si recibimos la llamada (venpaca)
-    if (sensores.venpaca) {
-        cout << "El auxiliar ha recibido la llamada\n";
-		recibi_llamada = true;
-        // (Aquí iría la lógica para "recibir" las coordenadas del Rescatador)
-        destinoF_accidente = sensores.destinoF;
-        destinoC_accidente = sensores.destinoC;
-		cout << "Las cordenadas de destino pasadas al uxiliar son : " << destinoF_accidente <<", "<< destinoC_accidente << endl;
-        hayPlan = false; // Asegurarse de que se recalcule el plan
-    }
-
-    if (recibi_llamada) {
-        // Si no estamos en la posición del accidentado
-        if (!en_posicion_accidentado) {
-            // Planificar ruta al accidentado (si no tenemos un plan)
-            if (!hayPlan) {
-                origen.f = sensores.posF;
-                origen.c = sensores.posC;
-                origen.brujula = sensores.rumbo;
-                origen.zapatillas = tiene_zapatillas;
-
-                destino.f = destinoF_accidente;
-                destino.c = destinoC_accidente;
-                destino.brujula = 0; // No importa la orientación al llegar
-                destino.zapatillas = false;
-
-                plan = AlgoritmoAEstrella(origen, destino, mapaResultado, mapaCotas);
-                hayPlan = !plan.empty(); // Actualizar hayPlan según el resultado de AlgoritmoAEstrella
-            }
-
-            // Si tenemos un plan y no está vacío, seguirlo
-            if (hayPlan && !plan.empty()) {
-                accion = plan.front();
-                plan.pop_front();
-            }
-
-            // Si llegamos al accidentado
-            if (sensores.posF == destinoF_accidente && sensores.posC == destinoC_accidente) {
-                en_posicion_accidentado = true;
-                hayPlan = false; // Resetear el plan
-                plan.clear();  // Limpiar el plan
-            }
-        } else {
-            // Ya estamos en la posición del accidentado
-            // No necesitamos hacer nada más (por ahora)
-            accion = IDLE;
-        }
-    }
-
-    return accion;
+	
 }
