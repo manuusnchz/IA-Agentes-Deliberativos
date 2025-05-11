@@ -876,6 +876,13 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 			c = 'P';
 		}
 
+		if (sensores.agentes[3] == 'a' || sensores.agentes[1] == 'a')
+		{
+			return TURN_L;
+		}
+
+		
+
 		pair<int, int> posicion = Funcion_delante(mapaResultado, mapaCotas, sensores);
 
 		int tc = matrizTempR[posicion.first][posicion.second]; // centro
