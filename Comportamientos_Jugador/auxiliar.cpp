@@ -681,7 +681,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 
 		if (sensores.agentes[3] == 'r' || sensores.agentes[1] == 'r')
 		{
-			return TURN_L;
+			return TURN_SR;
 		}
 		char mi = mapaResultado[sensores.posF][sensores.posC - 1]; // izquierda
 		char mc = mapaResultado[sensores.posF - 1][sensores.posC]; // centro

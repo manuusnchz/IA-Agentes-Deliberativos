@@ -181,6 +181,17 @@ int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int ti, int tc, in
 
 	vector<int> valores(3, -1);
 
+
+	if(c == 'D' && !zap){
+		return 2;
+	}
+	if(i == 'D' && !zap){
+		return 1;
+	}
+	if(d == 'D' && !zap){
+		return 3;
+	}
+
 	// Prioridad 1: Casillas no exploradas y que sean caminos
 	if (c == 'S' or c == 'C' or c == 'X' or c == 'D')
 	{
@@ -923,13 +934,17 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 	Action accion;
 	instante++;
-	matrizTempR[sensores.posF][sensores.posC] ++;
+	
+	if(last_action == WALK){
+		matrizTempR[sensores.posF][sensores.posC] ++;
+	}
 
 	if (sensores.superficie[0] == 'D')
 		tiene_zapatillas = true;
 
 	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores);
 
+	
 	if (giro45Izq != 0)
 	{
 		accion = TURN_SR;
