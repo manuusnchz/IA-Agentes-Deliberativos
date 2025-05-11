@@ -108,47 +108,69 @@ void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigne
 }
 
 /*FUNCIONES NIVEL 0*/
-int VeoCasillaInteresanteR(char i, char c, char d, bool zap)
+int VeoCasillaInteresanteR(char i, char c, char d, bool zap,int ti , int tc, int td)
 {
-	if (c == 'X')
+	int minimo = 6000;
+	int salida = 0;
+
+	vector<int> valores(3, -1);
+
+	
+	//Prioridad 1 : X
+
+	if(c == 'X'){
 		return 2;
-	
-	else if (i == 'X')
+	}
+	if(i == 'X'){
 		return 1;
-	
-	else if (d == 'X')
+	}
+	if(d == 'X'){
 		return 3;
-
-	else if (!zap)
-	{
-		if (c == 'D')
-			return 2;
-		else if (i == 'D')
-			return 1;
-		else if (d == 'D')
-			return 3;
 	}
+	
+	//Prioridad 2 : Zapatillas si no las tiene
 
-	else if (zap)
-	{
-		if (c == 'D')
-			return 2;
-		else if (i == 'D')
-			return 1;
-		else if (d == 'D')
-			return 3;
-	}
-
-	if (c == 'C')
+	if(c == 'D' && !zap){
 		return 2;
-	else if (i == 'C')
+	}
+	if(i == 'D' && !zap){
 		return 1;
-	else if (d == 'C')
+	}
+	if(d == 'D' && !zap){
 		return 3;
-
-	else
-		return 0;
+	}
 	
+	
+	// Prioridad 3: Casillas menos exploradas y que sean caminos o zapatillas
+	if (c == 'C' or c == 'D')
+	{
+		valores[0] = tc;
+		if (tc < minimo)
+		{
+			minimo = tc;
+			salida = 2;
+		}
+	}
+	if (i == 'C' or  i == 'D')
+	{
+		valores[1] = ti;
+		if (ti < minimo)
+		{
+			minimo = ti;
+			salida = 1;
+		}
+	}
+	if (d == 'C' or d == 'D')
+	{
+		valores[2] = td;
+		if (td < minimo)
+		{
+			minimo = td;
+			salida = 3;
+		}
+	}
+	
+	return salida;
 }
 
 /*FUNCIONES NIVEL 1*/
@@ -818,31 +840,23 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 {
 	Action accion;
 
+	if(last_action == WALK){
+		matrizTempR[sensores.posF][sensores.posC] ++;
+	}
+	if(sensores.superficie[0] == 'X'){
+		return IDLE;
+	}
+
 	if (sensores.superficie[0] == 'D')
 		tiene_zapatillas = true;
 
+	if(matrizTempR[sensores.posF][sensores.posC] > 5){
+		giro45Izq = (rand() % 6);
+		accion = TURN_L;
+	}
 	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores);
 
-	if (last_action == WALK)
-	{
-		matriz[sensores.posF][sensores.posC]++;
-	}
-
-	if (matriz[sensores.posF][sensores.posC] >= 4)
-	{
-		// Está en bucle: aplica una acción distinta
-		giro45Izq = rand() % 5;
-		accion = TURN_SR;						  // TURN_SR aleatorio
-		matriz[sensores.posF][sensores.posC] = 1; // resetea el contador
-		return accion;
-	}
-
-	if (sensores.superficie[0] == 'X')
-	{
-		accion = IDLE;
-	}
-
-	else if (giro45Izq != 0)
+	if (giro45Izq != 0)
 	{
 		accion = TURN_SR;
 		giro45Izq--;
@@ -862,7 +876,19 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 			c = 'P';
 		}
 
-		int pos = VeoCasillaInteresanteR(i, c, d, tiene_zapatillas);
+		pair<int, int> posicion = Funcion_delante(mapaResultado, mapaCotas, sensores);
+
+		int tc = matrizTempR[posicion.first][posicion.second]; // centro
+		Sensores copia_sensores = sensores;
+		copia_sensores.rumbo = static_cast<Orientacion>((copia_sensores.rumbo + 7) % 8);
+		posicion = Funcion_delante(mapaResultado, mapaCotas, copia_sensores);
+		int ti = matrizTempR[posicion.first][posicion.second]; // izquierda
+		copia_sensores.rumbo = static_cast<Orientacion>((sensores.rumbo + 1) % 8);
+		posicion = Funcion_delante(mapaResultado, mapaCotas, copia_sensores);
+		int td = matrizTempR[posicion.first][posicion.second]; // derecha
+
+		int pos = VeoCasillaInteresanteR(i, c, d, tiene_zapatillas, ti, tc, td);
+
 		switch (pos)
 		{
 		case 2:
@@ -876,11 +902,11 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 			accion = TURN_SR;
 			break;
 		case 0:
+			giro45Izq = (rand() % 6);
 			accion = TURN_L;
 			break;
 		}
 	}
-
 	last_action = accion;
 	return accion;
 }
